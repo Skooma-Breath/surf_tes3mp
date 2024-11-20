@@ -18,6 +18,8 @@
 #include "consoleextensions.hpp"
 #include "userextensions.hpp"
 
+#include "surfcommands.hpp"
+
 namespace MWScript
 {
     void installOpcodes (Interpreter::Interpreter& interpreter, bool consoleOnly)
@@ -35,6 +37,10 @@ namespace MWScript
         Dialogue::installOpcodes (interpreter);
         Animation::installOpcodes (interpreter);
         Transformation::installOpcodes (interpreter);
+        
+        // SURFMOVEMENTS ADDITION begin
+        // Surf::installOpcodes(interpreter);
+        // SURFMOVEMENTS ADDITION end
 
         if (consoleOnly)
         {

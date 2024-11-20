@@ -170,6 +170,25 @@ namespace MWPhysics
 
         void setVelocity(osg::Vec3f velocity);
         osg::Vec3f velocity();
+        osg::Vec3f getVelocity() const;
+       
+
+        
+        // SURFMOVEMENTS ADDITION begin
+        // void setSurfing(bool surfing) { mIsSurfing = surfing; }
+        // bool isSurfing() const { return mIsSurfing; }
+        // float getSurfSpeed() const { return mSurfSpeed; }
+        // void setSurfSpeed(float speed) { mSurfSpeed = speed; }
+        // New sliding properties
+        bool mSliding = false;
+        osg::Vec3f mSlopeNormal;
+        
+        void setSliding(bool sliding) { mSliding = sliding; }
+        bool getSliding() const { return mSliding; }
+        
+        void setSlopeNormal(const osg::Vec3f& normal) { mSlopeNormal = normal; }
+        osg::Vec3f getSlopeNormal() const { return mSlopeNormal; }
+        // SURFMOVEMENTS ADDITION end
 
     private:
         MWWorld::Ptr mStandingOnPtr;
@@ -220,6 +239,11 @@ namespace MWPhysics
 
         Actor(const Actor&);
         Actor& operator=(const Actor&);
+        
+        // SURFMOVEMENTS ADDITION begin
+        // bool mIsSurfing;
+        // float mSurfSpeed;
+        // SURFMOVEMENTS ADDITION end
     };
 
 }

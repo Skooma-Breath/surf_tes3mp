@@ -363,7 +363,7 @@ namespace MWPhysics
             {
                 if (!isActor(tracer.mHitObject))
                 {
-                    isOnGround = true;
+                    isOnGround = true; // check isonslope first and then set isonground to false if on non walkable slope.
                     isOnSlope = !isWalkableSlope(tracer.mPlaneNormal);
 
                     const btCollisionObject* standingOn = tracer.mHitObject;
@@ -402,17 +402,103 @@ namespace MWPhysics
             }
         }
 
-        if((isOnGround && !isOnSlope) || newPosition.z() < swimlevel || actor.mFlying)
+        if ((isOnGround && !isOnSlope) || newPosition.z() < swimlevel || actor.mFlying) {
             physicActor->setInertialForce(osg::Vec3f(0.f, 0.f, 0.f));
+            //isOnGround = false;
+            //std::cout << "Sliding down steep slope, adjusting vertical velocity." << std::endl;
+        }
         else
         {
+            //std::cout << "doing the other thing" << std::endl;
             inertia.z() -= time * Constants::GravityConst * Constants::UnitsPerMeter;
+            isOnGround = false;
             if (inertia.z() < 0)
                 inertia.z() *= actor.mSlowFall;
             if (actor.mSlowFall < 1.f) {
                 inertia.x() *= actor.mSlowFall;
                 inertia.y() *= actor.mSlowFall;
             }
+
+            // TODO: need to check if player is in the air and then prevent constant acceleration when pressing keys besides 
+            // the normal behavior of air strafing with a and d
+            // essentially when holding a or d in the air the player should basically not move to the side at all, but only 
+            // along the forward vector of the camera when rotating the camera properly 
+            // 
+            // the above comment needs to be tested more first. try lowering player speed and acrobatics and also re test everything after surfing is in.
+            // 
+            // the player should be able to accelerate by moving in this manor if they time thier jumps perfectly (if we were trying to simulate bunny hop effect exactly)
+            // 
+            // TODO: should be able to do the same thing while moving sideways and pressing w and s instead of moving forwards and pressing a and d
+            // 
+            // TODO: create either console commands or tes3mp commands for tweaking all the constants that effect surfing while in game.
+            // 
+            // TODO: make the surfing mechanics configurable or per player or per cell to not get in the way of normal morrowind if people wanted to have both options available... (low priority)
+            // 
+            // Static variable to keep track of the previous frame's camera angle
+            static float previousCameraRotation = refpos.rot[2];
+
+            // Obtain forward and right vectors based on current camera rotation
+            osg::Vec3f forwardDirection = osg::Quat(refpos.rot[2], osg::Vec3f(0, 0, -1)) * osg::Vec3f(0, 1, 0);
+            osg::Vec3f rightDirection = osg::Quat(refpos.rot[2], osg::Vec3f(0, 0, -1)) * osg::Vec3f(1, 0, 0);
+
+            // Constrain forward and right vectors to the horizontal plane
+            forwardDirection.z() = 0;
+            rightDirection.z() = 0;
+            forwardDirection.normalize();
+            rightDirection.normalize();
+
+            // Calculate the player's current horizontal inertia (ignoring vertical component)
+            osg::Vec3f horizontalInertia(inertia.x(), inertia.y(), 0);
+
+            // Determine the direction of the camera rotation change
+            float cameraRotationDelta = refpos.rot[2] - previousCameraRotation;
+
+            // Initialize strafe direction
+            osg::Vec3f strafeDirection(0, 0, 0);
+
+            // Determine strafe direction based on input
+            if (actor.mMovement.x() < 0) {        // Pressing 'A' (move left)
+                strafeDirection = -rightDirection;
+            }
+            else if (actor.mMovement.x() > 0) { // Pressing 'D' (move right)
+                strafeDirection = rightDirection;
+            }
+
+            // Step 1: Check if the camera is actively rotating in the intended strafe direction
+            bool applyStrafeAcceleration = false;
+            if (strafeDirection == -rightDirection && cameraRotationDelta < -0.01f) { // Left strafe with active left rotation
+                applyStrafeAcceleration = true;
+            }
+            else if (strafeDirection == rightDirection && cameraRotationDelta > 0.01f) { // Right strafe with active right rotation
+                applyStrafeAcceleration = true;
+            }
+
+            // Step 2: Apply air-strafing if the camera rotation matches the strafe input
+            if (applyStrafeAcceleration) {
+                std::cout << "applyStrafeAcceleration was true" << "\n";
+                // Only apply if moving roughly perpendicular to the initial inertia direction
+                float perpendicularCheck = horizontalInertia * strafeDirection;
+                if (fabs(perpendicularCheck) < 0.1f) {
+                    inertia += forwardDirection * AirStrafeAcceleration * time;
+                    std::cout << "if (fabs(perpendicularCheck) < 0.1f was true" << "\n";
+                }
+
+                // Gradually redirect inertia towards the forward direction of the camera
+                float blendFactor = 1.0f; // Controls how quickly inertia aligns to the camera's forward direction (1.0 being instant?....)
+                osg::Vec3f inertiaAlignedToCamera = horizontalInertia * (1.0f - blendFactor) + forwardDirection * (blendFactor * horizontalInertia.length());
+                inertia.x() = inertiaAlignedToCamera.x();
+                inertia.y() = inertiaAlignedToCamera.y();
+            }
+
+            // Step 3: Update position based on the new inertia
+            newPosition += inertia * time;
+            std::cout << "New Position: " << newPosition.x() << ", " << newPosition.y() << ", " << newPosition.z() << "\n";
+
+            // Update previous camera rotation for the next frame
+            previousCameraRotation = refpos.rot[2];
+
+
+
             physicActor->setInertialForce(inertia);
         }
         physicActor->setOnGround(isOnGround);

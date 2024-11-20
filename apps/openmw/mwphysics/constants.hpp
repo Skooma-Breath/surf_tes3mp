@@ -12,7 +12,7 @@ namespace MWPhysics
     static constexpr bool sDoExtraStairHacks = true;
 
     static constexpr float sGroundOffset = 1.0f;
-    static constexpr float sMaxSlope = 49.0f;
+    static constexpr float sMaxSlope = 30.0f; //49 is default
 
     // Arbitrary number. To prevent infinite loops. They shouldn't happen but it's good to be prepared.
     static constexpr int sMaxIterations = 8;
@@ -21,6 +21,16 @@ namespace MWPhysics
     // Allow for a small amount of penetration to prevent numerical precision issues from causing the "unstuck"ing code to run unnecessarily
     // Currently set to 0 because having the "unstuck"ing code run whenever possible prevents some glitchy snagging issues
     static constexpr float sAllowedPenetration = 0.0f;
+    
+    // Surf mechanic constants
+    // static constexpr float sSurfThreshold = 30.0f;   // Minimum angle for a surfable slope in degrees
+    // static constexpr float sMaxSurfAngle = 60.0f;    // Maximum angle for a surfable slope in degrees
+    // static constexpr float sSlideSpeed = 5.0f;       // Sliding speed on surfable slopes
+    static constexpr float AirStrafeAcceleration = 3000.0f; // Adjust based on desired responsiveness
+    // Define the base air control factor (e.g., 0.5 means the player has half the control in the air as on the ground)
+    static constexpr float baseAirControl = 1.0f;
+    static constexpr float maxAirSpeed = 1.0f;
+
 }
 
 #endif

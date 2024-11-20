@@ -85,7 +85,16 @@ namespace MWPhysics
         , mWaterHeight(0)
         , mWaterEnabled(false)
         , mParentNode(parentNode)
+        //comment if uncommenting surf addition below
         , mPhysicsDt(1.f / 60.f)
+
+        // SURFMOVEMENTS ADDITION begin
+        // , mPhysicsDt(1.f / 128.f)  // Higher physics rate for smoother surfing
+        // , mSurfFriction(0.05f)  // Low friction for smooth sliding
+        // , mSurfGravity(400.0f)  // Reduced gravity while surfing
+        // , mAirAcceleration(100.0f)  // Air strafing strength
+        // , mMaxSurfSpeed(1000.0f)  // Maximum surf speed
+        // SURFMOVEMENTS ADDITION end
     {
         mResourceSystem->addResourceManager(mShapeManager.get());
 
@@ -710,7 +719,7 @@ namespace MWPhysics
         const bool canWaterWalk = effects.get(ESM::MagicEffect::WaterWalking).getMagnitude() > 0;
 
         auto actor = std::make_shared<Actor>(ptr, shape, mTaskScheduler.get(), canWaterWalk);
-        
+
         // check if Actor is on the ground or in the air
         traceDown(ptr, ptr.getRefData().getPosition().asVec3(), 10.f);
 

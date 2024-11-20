@@ -40,6 +40,10 @@ Actor::Actor(const MWWorld::Ptr& ptr, const Resource::BulletShape* shape, Physic
   , mInternalCollisionMode(true)
   , mExternalCollisionMode(true)
   , mTaskScheduler(scheduler)
+  // SURFMOVEMENTS ADDITION begin
+  //, mIsSurfing(false)
+  //, mSurfSpeed(0.0f)
+  // SURFMOVEMENTS ADDITION end
 {
     mPtr = ptr;
 
@@ -338,5 +342,12 @@ osg::Vec3f Actor::velocity()
 {
     return std::exchange(mVelocity, osg::Vec3f());
 }
+
+osg::Vec3f Actor::getVelocity() const
+{
+    return mVelocity;
+}
+
+
 
 }
