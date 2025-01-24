@@ -34,10 +34,7 @@ namespace MWPhysics
     {
         static const float sMaxSlopeCos = std::cos(osg::DegreesToRadians(MWPhysics::sMaxSlope));
             bool result = (normal.z() > sMaxSlopeCos);
-            /*std::cout << "isWalkableSlope - normal.z(): " << normal.z() 
-                      << ", sMaxSlopeCos: " << sMaxSlopeCos 
-                      << ", result: " << result << std::endl;*/
-            //std::cout << "i think i sharted." << std::endl;
+           
             return result;
     }
 

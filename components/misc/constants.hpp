@@ -19,7 +19,8 @@ const float SoundSpeedUnderwater = 1484.0f;
 // Probaly original engine's developers just forgot
 // that their engine uses yards instead of meters
 // and used standart gravity value as it is
-const float GravityConst = 4.0f; // original value 8.96f;
+const float GravityConst = 8.96f; // original value 8.96f;
+const float MaxFallSpeed = 600.0f; // make 600 and test....
 
 // Size of one exterior cell in game units
 const int CellSizeInUnits = 8192;

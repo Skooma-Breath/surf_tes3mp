@@ -60,12 +60,12 @@ namespace MWInput
     void ActionManager::update(float dt, bool triedToMove)
     {
         // Disable movement in Gui mode
-        if (MWBase::Environment::get().getWindowManager()->isGuiMode()
+       /* if (MWBase::Environment::get().getWindowManager()->isGuiMode()
             || MWBase::Environment::get().getStateManager()->getState() != MWBase::StateManager::State_Running)
         {
             mAttemptJump = false;
             return;
-        }
+        }*/
 
         // Configure player movement according to keyboard input. Actual movement will
         // be done in the physics system.

@@ -12,7 +12,9 @@ namespace MWPhysics
     static constexpr bool sDoExtraStairHacks = true;
 
     static constexpr float sGroundOffset = 1.0f;
-    static constexpr float sMaxSlope = 30.0f; //49 is default
+    static constexpr float sMaxSlope = 44.0f; //49 is default
+    static constexpr float sSurfThreshold = 34.0f; 
+    static constexpr float sSlideSpeed = 0.01f;
 
     // Arbitrary number. To prevent infinite loops. They shouldn't happen but it's good to be prepared.
     static constexpr int sMaxIterations = 8;
