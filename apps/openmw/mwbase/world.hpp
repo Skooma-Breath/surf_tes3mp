@@ -109,6 +109,8 @@ namespace MWBase
 
         public:
 
+            virtual void toggleFieldOfView() = 0; // sniper scope zoom
+
             struct DoorMarker
             {
                 std::string name;
@@ -374,7 +376,7 @@ namespace MWBase
                 Start of tes3mp addition
 
                 This has been declared here so it can be accessed from places
-                other than MWWorld::World 
+                other than MWWorld::World
             */
             virtual void PCDropped(const MWWorld::Ptr& item) = 0;
             /*

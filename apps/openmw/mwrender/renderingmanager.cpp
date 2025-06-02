@@ -69,6 +69,7 @@
 #include "screenshotmanager.hpp"
 #include "groundcover.hpp"
 
+
 namespace MWRender
 {
 
@@ -436,6 +437,7 @@ namespace MWRender
         mUniformNear = mRootNode->getOrCreateStateSet()->getUniform("near");
         mUniformFar = mRootNode->getOrCreateStateSet()->getUniform("far");
         updateProjectionMatrix();
+
     }
 
     RenderingManager::~RenderingManager()
@@ -742,6 +744,7 @@ namespace MWRender
         mStateUpdater->setFogStart(mFog->getFogStart(isUnderwater));
         mStateUpdater->setFogEnd(mFog->getFogEnd(isUnderwater));
         setFogColor(mFog->getFogColor(isUnderwater));
+
     }
 
     void RenderingManager::updatePlayerPtr(const MWWorld::Ptr &ptr)
@@ -1350,4 +1353,42 @@ namespace MWRender
         if (mObjectPaging)
             mObjectPaging->getPagedRefnums(activeGrid, out);
     }
+
+    void RenderingManager::fovMod()
+    {
+        // Static variables to store the original FOV and the toggle state
+        static float originalFOV = mFieldOfView; // Stores the original FOV
+        static bool isZoomed = false;            // Tracks whether the scope is active
+        float zoomFactor = 0.5f; // Example: 2x zoom
+        float zoomedFOV = originalFOV * zoomFactor;
+
+        // Toggle between zoomed and original FOV
+        if (!isZoomed) {
+            // Store the original FOV if not already stored
+            originalFOV = mFieldOfView;
+
+            // Set the zoomed FOV
+            mFieldOfView = zoomedFOV;
+            overrideFieldOfView(zoomedFOV);
+
+            // Update the toggle state
+            isZoomed = true;
+
+            // Debug message
+            std::cout << "FOV set to zoomed: " << zoomedFOV << std::endl;
+        }
+        else {
+            // Restore the original FOV
+            mFieldOfView = originalFOV;
+            overrideFieldOfView(originalFOV);
+
+            // Update the toggle state
+            isZoomed = false;
+
+            // Debug message
+            std::cout << "FOV restored to original: " << originalFOV << std::endl;
+        }
+    }
+
+
 }

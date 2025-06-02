@@ -444,23 +444,31 @@ namespace MWRender
         return mCameraDistance;
     }
 
+    // void Camera::adjustCameraDistance(float delta)
+    // {
+    //     if (!isFirstPerson())
+    //     {
+    //         if(isNearest() && delta < 0.f && getMode() != Mode::Preview && getMode() != Mode::Vanity)
+    //             toggleViewMode();
+    //         else
+    //             mBaseCameraDistance = std::min(mCameraDistance - getCameraDistanceCorrection(), mBaseCameraDistance) + delta;
+    //     }
+    //     else if (delta > 0.f)
+    //     {
+    //         toggleViewMode();
+    //         mBaseCameraDistance = 0;
+    //     }
+
+    //     mIsNearest = mBaseCameraDistance <= mNearest;
+    //     mBaseCameraDistance = osg::clampBetween(mBaseCameraDistance, mNearest, mFurthest);
+    //     Settings::Manager::setFloat("third person camera distance", "Camera", mBaseCameraDistance);
+    // }
+
     void Camera::adjustCameraDistance(float delta)
     {
-        if (!isFirstPerson())
-        {
-            if(isNearest() && delta < 0.f && getMode() != Mode::Preview && getMode() != Mode::Vanity)
-                toggleViewMode();
-            else
-                mBaseCameraDistance = std::min(mCameraDistance - getCameraDistanceCorrection(), mBaseCameraDistance) + delta;
-        }
-        else if (delta > 0.f)
-        {
-            toggleViewMode();
-            mBaseCameraDistance = 0;
-        }
+        mBaseCameraDistance += delta;  // Force apply the delta for testing
 
-        mIsNearest = mBaseCameraDistance <= mNearest;
-        mBaseCameraDistance = osg::clampBetween(mBaseCameraDistance, mNearest, mFurthest);
+        // mBaseCameraDistance = osg::clampBetween(mBaseCameraDistance, mNearest, mFurthest);
         Settings::Manager::setFloat("third person camera distance", "Camera", mBaseCameraDistance);
     }
 

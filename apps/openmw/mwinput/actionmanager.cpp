@@ -33,17 +33,23 @@
 #include "../mwmechanics/npcstats.hpp"
 #include "../mwmechanics/actorutil.hpp"
 
+#include "../mwrender/renderingmanager.hpp"
+
 #include "actions.hpp"
 #include "bindingsmanager.hpp"
 
+bool MWRender::RenderingManager::aimToggle = false; // Definition of the static member
+
 namespace MWInput
 {
-    const float ZOOM_SCALE = 10.f; /// Used for scrolling camera in and out
+    const float ZOOM_SCALE = 100.f; /// Used for scrolling camera in and out
 
     ActionManager::ActionManager(BindingsManager* bindingsManager,
             osgViewer::ScreenCaptureHandler::CaptureOperation* screenCaptureOperation,
             osg::ref_ptr<osgViewer::Viewer> viewer,
-            osg::ref_ptr<osgViewer::ScreenCaptureHandler> screenCaptureHandler)
+            osg::ref_ptr<osgViewer::ScreenCaptureHandler> screenCaptureHandler
+
+    )
         : mBindingsManager(bindingsManager)
         , mViewer(viewer)
         , mScreenCaptureHandler(screenCaptureHandler)
@@ -54,6 +60,7 @@ namespace MWInput
         , mOverencumberedMessageDelay(0.f)
         , mPreviewPOVDelay(0.f)
         , mTimeIdle(0.f)
+         // , mRenderingManager(renderingManager) // Initialize RenderingManager
     {
     }
 
@@ -179,7 +186,7 @@ namespace MWInput
 
         mAttemptJump = false;
     }
-    
+
     bool ActionManager::isPreviewModeEnabled()
     {
         return MWBase::Environment::get().getWorld()->isPreviewModeEnabled();
@@ -209,9 +216,25 @@ namespace MWInput
     {
         auto* inputManager = MWBase::Environment::get().getInputManager();
         auto* windowManager = MWBase::Environment::get().getWindowManager();
+        auto* world = MWBase::Environment::get().getWorld();
         // trigger action activated
         switch (action)
         {
+        case A_Test:
+            if (world)
+                {
+                    world->toggleFieldOfView(); // Call the new method
+                     if (MWRender::RenderingManager::aimToggle) {
+
+                         MWRender::RenderingManager::aimToggle = false;
+
+                     }
+                     else {
+                         MWRender::RenderingManager::aimToggle = true;
+                     }
+
+                }
+            break;
         case A_GameMenu:
             toggleMainMenu ();
             break;
@@ -329,6 +352,12 @@ namespace MWInput
             }
             break;
         }
+    }
+
+    void someFunction(MWRender::RenderingManager& renderingManager)
+    {
+        float fov = renderingManager.getFieldOfView();
+        fov = 30.0f;
     }
 
     bool ActionManager::checkAllowedToUseItems() const
