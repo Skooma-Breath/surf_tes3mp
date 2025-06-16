@@ -22,6 +22,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Add OpenMW PPA Dependencies
         run: |
@@ -38,7 +40,9 @@ jobs:
             qtbase5-dev \
             qt5-qmake \
             build-essential \
-            cmake
+            cmake \
+            p7zip-full \
+            ccache
           sudo CI/install_debian_deps.sh gcc openmw-deps openmw-deps-dynamic
           curl -o CrabNet.7z -L https://github.com/DreamWeave-MP/CrabNet/releases/download/Stable-CI/CrabNet-Linux-Release.7z
           7z x -y CrabNet.7z -oextern/raknet
@@ -49,7 +53,7 @@ jobs:
           cd /usr/src/googletest
           sudo cmake .
           sudo make
-          sudo make install
+          sudo cp lib/*.a /usr/lib
           sudo ldconfig
 
       - name: Prime ccache
@@ -67,14 +71,16 @@ jobs:
             -DBUILD_UNITTESTS=ON \
             -DCMAKE_INSTALL_PREFIX=install \
             -DCMAKE_CXX_STANDARD=14 \
-            -DCMAKE_CXX_FLAGS="-std=c++14 -Wno-dev" \
+            -DCMAKE_CXX_FLAGS="-std=c++14" \
             -DDESIRED_QT_VERSION=5 \
             -DLuaJit_FOUND=TRUE \
             -DLUAJIT_INCLUDE_DIR=/usr/include/luajit-2.1 \
-            -DLUAJIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libluajit-5.1.so
+            -DLUAJIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libluajit-5.1.so \
+            -Wno-dev
 
       - name: Build
-        run: make -j$(nproc)
+        run: |
+          make -j$(nproc) || make -j1  # Fallback to single thread if parallel build fails
 
       - name: Test
         run: ./openmw_test_suite
