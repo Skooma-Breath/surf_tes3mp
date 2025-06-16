@@ -52,17 +52,17 @@ jobs:
           curl -o CrabNet.7z -L https://github.com/DreamWeave-MP/CrabNet/releases/download/Stable-CI/CrabNet-Linux-Release.7z
           7z x -y CrabNet.7z -oextern/raknet
 
-       # Create proper Lua header structure
-       sudo mkdir -p /usr/local/include/lua
-       sudo cp -r /usr/include/lua5.1/* /usr/local/include/lua/
-       sudo ln -sf /usr/local/include/lua /usr/include/lua5.1
-       sudo ln -sf /usr/local/include/lua/lua.hpp /usr/include/
-       sudo ln -sf /usr/local/include/lua/lua.h /usr/include/
-       sudo ln -sf /usr/local/include/lua/luaconf.h /usr/include/
+          # Create proper Lua header structure
+          sudo mkdir -p /usr/local/include/lua
+          sudo cp -r /usr/include/lua5.1/* /usr/local/include/lua/
+          sudo ln -sf /usr/local/include/lua /usr/include/lua5.1
+          sudo ln -sf /usr/local/include/lua/lua.hpp /usr/include/
+          sudo ln -sf /usr/local/include/lua/lua.h /usr/include/
+          sudo ln -sf /usr/local/include/lua/luaconf.h /usr/include/
 
-       # Verify installation
-       ls -la /usr/include/lua* /usr/include/lua.h /usr/include/luaconf.h
-       sudo ldconfig
+          # Verify installation
+          ls -la /usr/include/lua* /usr/include/lua.h /usr/include/luaconf.h
+          sudo ldconfig
 
 
       - name: Fix Hardcoded Paths
