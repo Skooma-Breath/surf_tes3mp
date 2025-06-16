@@ -95,6 +95,8 @@ jobs:
             -DLuaJit_FOUND=TRUE \
             -DLUAJIT_INCLUDE_DIR=/usr/include/luajit-2.1 \
             -DLUAJIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libluajit-5.1.so \
+            -DLUA_INCLUDE_DIR=/usr/include/lua5.1 \
+            -DLUA_LIBRARY=/usr/lib/x86_64-linux-gnu/liblua5.1.so \
             -Wno-dev
 
       - name: Build
