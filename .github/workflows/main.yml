@@ -30,70 +30,57 @@ jobs:
           sudo add-apt-repository ppa:openmw/openmw -y
           sudo apt-get update
 
-      - name: Install Building Dependencies
+      - name: Install Complete Build Environment
         run: |
           sudo apt-get install -y \
-          lua5.1 \
-          luajit \
-          libluajit-5.1-dev \
-          liblua5.1-0-dev \
-          libgtest-dev \
-          libgmock-dev \
-          googletest \
-          google-mock \
-          qtbase5-dev \
-          qt5-qmake \
-          build-essential \
-          cmake \
-          p7zip-full \
-          ccache
+            lua5.1 \
+            liblua5.1-0-dev \
+            luajit \
+            libluajit-5.1-dev \
+            libgtest-dev \
+            libgmock-dev \
+            googletest \
+            google-mock \
+            qtbase5-dev \
+            qt5-qmake \
+            build-essential \
+            cmake \
+            p7zip-full \
+            ccache \
+            libsdl2-dev \
+            libopenal-dev \
+            libqt5opengl5-dev
 
           sudo CI/install_debian_deps.sh gcc openmw-deps openmw-deps-dynamic
           curl -o CrabNet.7z -L https://github.com/DreamWeave-MP/CrabNet/releases/download/Stable-CI/CrabNet-Linux-Release.7z
           7z x -y CrabNet.7z -oextern/raknet
 
-          # Create proper Lua header structure
+      - name: Set Up Lua Environment (Primary Approach)
+        id: lua_setup
+        run: |
+          # Create clean Lua environment in /usr/local
           sudo mkdir -p /usr/local/include/lua
           sudo cp -r /usr/include/lua5.1/* /usr/local/include/lua/
           sudo ln -sf /usr/local/include/lua /usr/include/lua5.1
           sudo ln -sf /usr/local/include/lua/lua.hpp /usr/include/
           sudo ln -sf /usr/local/include/lua/lua.h /usr/include/
           sudo ln -sf /usr/local/include/lua/luaconf.h /usr/include/
-
-          # Verify installation
-          ls -la /usr/include/lua* /usr/include/lua.h /usr/include/luaconf.h
+          
+          # Verify primary setup
+          echo "Primary Lua setup verification:"
+          ls -la /usr/local/include/lua/ /usr/include/lua* /usr/include/lua.h /usr/include/luaconf.h
           sudo ldconfig
 
-
-      - name: Fix Hardcoded Paths
+      - name: Build and Install GTest/GMock
         run: |
-          sudo ln -sf /usr/include/lua /usr/include/lua5.1
-          sudo ln -sf /usr/lib/x86_64-linux-gnu/liblua5.1.so /usr/lib/liblua.so
-
-      - name: Verify Lua Setup
-        run: |
-          echo "Checking Lua headers:"
-          find /usr/include -name "luaconf.h" -o -name "lua.h" -o -name "lua.hpp"
-          echo "Checking Lua library:"
-          ldconfig -p | grep lua5.1
-
-      - name: Build and install GTest/GMock
-        run: |
-          # Install source files
-          sudo apt-get install -y libgtest-dev libgmock-dev
-
-          # Build and install GTest
           cd /usr/src/googletest
           sudo cmake .
           sudo make
           sudo cp lib/*.a /usr/lib
-
-          # Build and install GMock
           cd /usr/src/gmock
           sudo cmake .
           sudo make
           sudo cp lib/*.a /usr/lib
-
           sudo ldconfig
 
       - name: Prime ccache
@@ -102,7 +89,7 @@ jobs:
           key: ${{ matrix.os }}-${{ env.BUILD_TYPE }}
           max-size: 1000M
 
-      - name: Configure with Correct Paths
+      - name: Configure CMake (Primary)
         run: |
           cmake . \
             -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
@@ -113,28 +100,96 @@ jobs:
             -DCMAKE_CXX_STANDARD=14 \
             -DCMAKE_CXX_FLAGS="-std=c++14 -I/usr/local/include/lua" \
             -DDESIRED_QT_VERSION=5 \
+            -DLuaJit_FOUND=TRUE \
             -DLUA_INCLUDE_DIR=/usr/local/include/lua \
+            -DLUA_LIBRARIES=/usr/lib/x86_64-linux-gnu/liblua5.1.so \
+            -DLUAJIT_INCLUDE_DIR=/usr/include/luajit-2.1 \
+            -DLUAJIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libluajit-5.1.so \
+            -DGTEST_ROOT=/usr/src/googletest \
+            -DGMOCK_ROOT=/usr/src/gmock \
+            -Wno-dev
+
+      - name: Build with Verbose Output
+        run: |
+          make VERBOSE=1 -j$(nproc) 2>&1 | tee build.log || {
+            echo "Primary build failed, showing errors:"
+            grep -i error build.log | tail -n 50
+            exit 1
+          }
+
+      - name: Alternative Lua Setup (Fallback)
+        if: failure() && steps.lua_setup.outcome == 'failure'
+        run: |
+          echo "Trying alternative system-wide Lua setup..."
+          sudo mkdir -p /usr/include/lua
+          sudo cp -r /usr/include/lua5.1/* /usr/include/lua/
+          sudo ln -sf /usr/include/lua /usr/include/lua5.1
+          sudo ldconfig
+          
+          echo "Alternative setup verification:"
+          ls -la /usr/include/lua/ /usr/include/lua*
+
+      - name: Configure CMake (Alternative)
+        if: failure() && steps.lua_setup.outcome == 'failure'
+        run: |
+          cmake . \
+            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DBUILD_UNITTESTS=ON \
+            -DCMAKE_INSTALL_PREFIX=install \
+            -DCMAKE_CXX_STANDARD=14 \
+            -DCMAKE_CXX_FLAGS="-std=c++14 -I/usr/include/lua" \
+            -DDESIRED_QT_VERSION=5 \
+            -DLuaJit_FOUND=TRUE \
+            -DLUA_INCLUDE_DIR=/usr/include/lua \
             -DLUA_LIBRARIES=/usr/lib/x86_64-linux-gnu/liblua5.1.so \
             -DLUAJIT_INCLUDE_DIR=/usr/include/luajit-2.1 \
             -DLUAJIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libluajit-5.1.so \
             -Wno-dev
 
-      - name: Build
+      - name: Build with Alternative Setup
+        if: failure() && steps.lua_setup.outcome == 'failure'
         run: |
-          make -j$(nproc) || make -j1  # Fallback to single thread if parallel build fails
+          make VERBOSE=1 -j$(nproc) 2>&1 | tee build.log || {
+            echo "Alternative build failed, showing errors:"
+            grep -i error build.log | tail -n 50
+            exit 1
+          }
 
-      - name: Test
+      - name: Debugging Information
+        if: failure()
+        run: |
+          echo "=== Debugging Information ==="
+          echo "System include paths:"
+          g++ -E -x c++ - -v </dev/null 2>&1 | grep -A20 'include <...> search starts here'
+          
+          echo "Lua files found:"
+          find /usr -name "lua.h" -o -name "luaconf.h" -o -name "lua.hpp"
+          
+          echo "Lua libraries:"
+          ldconfig -p | grep lua
+          
+          echo "CMake cache:"
+          cat CMakeCache.txt | grep -i lua
+          
+          echo "Build log excerpts:"
+          grep -i "error\|warning\|missing" build.log | tail -n 100
+
+      - name: Run Tests
+        if: success()
         run: ./openmw_test_suite
 
       - name: Install
-        shell: bash
+        if: success()
         run: cmake --install .
 
-      - name: Create Artifact
-        shell: bash
+      - name: Create Package
+        if: success()
         run: sudo CI/make_package.ubuntu.sh
 
       - name: Upload Artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           path: dreamweave_linux.tar
