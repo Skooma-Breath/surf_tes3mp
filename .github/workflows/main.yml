@@ -51,21 +51,37 @@ jobs:
           curl -o CrabNet.7z -L https://github.com/DreamWeave-MP/CrabNet/releases/download/Stable-CI/CrabNet-Linux-Release.7z
           7z x -y CrabNet.7z -oextern/raknet
 
-      - name: Create Lua Header Symlink
+      - name: Set Up Lua Headers Properly
         run: |
-          # Create proper symlinks
-          sudo ln -sf /usr/include/lua5.1/lua.h /usr/include/
-          sudo ln -sf /usr/include/lua5.1/lua.hpp /usr/include/
-          sudo ln -sf /usr/include/lua5.1/lualib.h /usr/include/
-          sudo ln -sf /usr/include/lua5.1/lauxlib.h /usr/include/
+          # Create a dedicated lua directory
+          sudo mkdir -p /usr/include/lua
+    
+          # Copy all Lua 5.1 headers to standard location
+          sudo cp -r /usr/include/lua5.1/* /usr/include/lua/
+    
+          # Create necessary symlinks for compatibility
+          sudo ln -sf /usr/include/lua /usr/include/lua5.1
+          sudo ln -sf /usr/include/lua/lua.hpp /usr/include/
+          sudo ln -sf /usr/include/lua/lua.h /usr/include/
+          sudo ln -sf /usr/include/lua/luaconf.h /usr/include/
+    
+          # Verify the setup
+          ls -la /usr/include/lua* /usr/include/luaconf.h
+    
+          # Update library cache
           sudo ldconfig
+
+      - name: Fix Hardcoded Paths
+        run: |
+          sudo ln -sf /usr/include/lua /usr/include/lua5.1
+          sudo ln -sf /usr/lib/x86_64-linux-gnu/liblua5.1.so /usr/lib/liblua.so
 
       - name: Verify Lua Setup
         run: |
-          echo "Lua headers:"
-          ls -la /usr/include/lua*
-          echo "Lua libraries:"
-          ls -la /usr/lib/x86_64-linux-gnu/liblua*
+          echo "Checking Lua headers:"
+          find /usr/include -name "luaconf.h" -o -name "lua.h" -o -name "lua.hpp"
+          echo "Checking Lua library:"
+          ldconfig -p | grep lua5.1
 
       - name: Build and install GTest/GMock
         run: |
@@ -92,23 +108,22 @@ jobs:
           key: ${{ matrix.os }}-${{ env.BUILD_TYPE }}
           max-size: 1000M
 
-      - name: Configure
+      - name: Configure CMake with Correct Paths
         run: |
-          cmake . \
-            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-            -DBUILD_UNITTESTS=ON \
-            -DCMAKE_INSTALL_PREFIX=install \
-            -DCMAKE_CXX_STANDARD=14 \
-            -DCMAKE_CXX_FLAGS="-std=c++14" \
-            -DDESIRED_QT_VERSION=5 \
-            -DLuaJit_FOUND=TRUE \
-            -DLUAJIT_INCLUDE_DIR=/usr/include/luajit-2.1 \
-            -DLUAJIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libluajit-5.1.so \
-            -DLUA_INCLUDE_DIR=/usr/include/lua5.1 \
-            -DLUA_LIBRARY=/usr/lib/x86_64-linux-gnu/liblua5.1.so \
-            -Wno-dev
+            cmake . \
+              -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+              -DBUILD_UNITTESTS=ON \
+              -DCMAKE_INSTALL_PREFIX=install \
+              -DCMAKE_CXX_STANDARD=14 \
+              -DCMAKE_CXX_FLAGS="-std=c++14 -I/usr/include/lua" \
+              -DDESIRED_QT_VERSION=5 \
+              -DLUA_INCLUDE_DIR=/usr/include/lua \
+              -DLUA_LIBRARIES=/usr/lib/x86_64-linux-gnu/liblua5.1.so \
+              -DLUAJIT_INCLUDE_DIR=/usr/include/luajit-2.1 \
+              -DLUAJIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libluajit-5.1.so \
+              -Wno-dev
 
       - name: Build
         run: |
