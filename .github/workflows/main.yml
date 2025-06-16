@@ -60,6 +60,13 @@ jobs:
           sudo ln -sf /usr/include/lua5.1/lauxlib.h /usr/include/
           sudo ldconfig
 
+      - name: Verify Lua Setup
+        run: |
+          echo "Lua headers:"
+          ls -la /usr/include/lua*
+          echo "Lua libraries:"
+          ls -la /usr/lib/x86_64-linux-gnu/liblua*
+
       - name: Build and install GTest/GMock
         run: |
           # Install source files
