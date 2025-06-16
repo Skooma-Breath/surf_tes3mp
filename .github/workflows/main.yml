@@ -36,17 +36,21 @@ jobs:
             libgtest-dev \
             googletest \
             qtbase5-dev \
-            qt5-qmake
+            qt5-qmake \
+            build-essential \
+            cmake
           sudo CI/install_debian_deps.sh gcc openmw-deps openmw-deps-dynamic
           curl -o CrabNet.7z -L https://github.com/DreamWeave-MP/CrabNet/releases/download/Stable-CI/CrabNet-Linux-Release.7z
           7z x -y CrabNet.7z -oextern/raknet
 
       - name: Build and install GTest
         run: |
-          cd /usr/src/gtest
-          sudo cmake CMakeLists.txt
+          sudo apt-get install -y libgtest-dev
+          cd /usr/src/googletest
+          sudo cmake .
           sudo make
-          sudo cp *.a /usr/lib
+          sudo make install
+          sudo ldconfig
 
       - name: Prime ccache
         uses: hendrikmuhs/ccache-action@v1.2
@@ -67,8 +71,7 @@ jobs:
             -DDESIRED_QT_VERSION=5 \
             -DLuaJit_FOUND=TRUE \
             -DLUAJIT_INCLUDE_DIR=/usr/include/luajit-2.1 \
-            -DLUAJIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libluajit-5.1.so \
-            -DGTEST_ROOT=/usr/src/gtest
+            -DLUAJIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libluajit-5.1.so
 
       - name: Build
         run: make -j$(nproc)
