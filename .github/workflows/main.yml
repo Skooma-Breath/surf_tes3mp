@@ -36,6 +36,7 @@ jobs:
           lua5.1 \
           luajit \
           libluajit-5.1-dev \
+          liblua5.1-0-dev \
           libgtest-dev \
           libgmock-dev \
           googletest \
@@ -52,8 +53,11 @@ jobs:
 
       - name: Create Lua Header Symlink
         run: |
-          # Create symlink for lua.hpp if it doesn't exist
-          sudo ln -s /usr/include/lua5.1/* /usr/include/
+          # Create proper symlinks
+          sudo ln -sf /usr/include/lua5.1/lua.h /usr/include/
+          sudo ln -sf /usr/include/lua5.1/lua.hpp /usr/include/
+          sudo ln -sf /usr/include/lua5.1/lualib.h /usr/include/
+          sudo ln -sf /usr/include/lua5.1/lauxlib.h /usr/include/
           sudo ldconfig
 
       - name: Build and install GTest/GMock
