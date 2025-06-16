@@ -1,0 +1,147 @@
+name: Ubuntu Build & Test
+
+on:
+  push:
+    branches:
+      - 'master'
+      - 'fix/*'
+      - 'feat/*'
+  pull_request:
+    branches: [ master ]
+    types:
+      - created
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+  GIT_TERMINAL_PROMPT: 0
+
+jobs:
+  Ubuntu:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Add OpenMW PPA Dependencies
+        run: |
+          sudo add-apt-repository ppa:openmw/openmw -y
+          sudo apt-get update
+
+      - name: Install Building Dependencies
+        run: |
+          sudo apt-get install -y \
+          lua5.1 \
+          luajit \
+          libluajit-5.1-dev \
+          liblua5.1-0-dev \
+          libgtest-dev \
+          libgmock-dev \
+          googletest \
+          google-mock \
+          qtbase5-dev \
+          qt5-qmake \
+          build-essential \
+          cmake \
+          p7zip-full \
+          ccache
+          sudo CI/install_debian_deps.sh gcc openmw-deps openmw-deps-dynamic
+          curl -o CrabNet.7z -L https://github.com/DreamWeave-MP/CrabNet/releases/download/Stable-CI/CrabNet-Linux-Release.7z
+          7z x -y CrabNet.7z -oextern/raknet
+
+      - name: Set Up Lua Headers Properly
+        run: |
+          # Create a dedicated lua directory
+          sudo mkdir -p /usr/include/lua
+    
+          # Copy all Lua 5.1 headers to standard location
+          sudo cp -r /usr/include/lua5.1/* /usr/include/lua/
+    
+          # Create necessary symlinks for compatibility
+          sudo ln -sf /usr/include/lua /usr/include/lua5.1
+          sudo ln -sf /usr/include/lua/lua.hpp /usr/include/
+          sudo ln -sf /usr/include/lua/lua.h /usr/include/
+          sudo ln -sf /usr/include/lua/luaconf.h /usr/include/
+    
+          # Verify the setup
+          ls -la /usr/include/lua* /usr/include/luaconf.h
+    
+          # Update library cache
+          sudo ldconfig
+
+      - name: Fix Hardcoded Paths
+        run: |
+          sudo ln -sf /usr/include/lua /usr/include/lua5.1
+          sudo ln -sf /usr/lib/x86_64-linux-gnu/liblua5.1.so /usr/lib/liblua.so
+
+      - name: Verify Lua Setup
+        run: |
+          echo "Checking Lua headers:"
+          find /usr/include -name "luaconf.h" -o -name "lua.h" -o -name "lua.hpp"
+          echo "Checking Lua library:"
+          ldconfig -p | grep lua5.1
+
+      - name: Build and install GTest/GMock
+        run: |
+          # Install source files
+          sudo apt-get install -y libgtest-dev libgmock-dev
+    
+          # Build and install GTest
+          cd /usr/src/googletest
+          sudo cmake .
+          sudo make
+          sudo cp lib/*.a /usr/lib
+    
+          # Build and install GMock
+          cd /usr/src/gmock
+          sudo cmake .
+          sudo make
+          sudo cp lib/*.a /usr/lib
+    
+          sudo ldconfig
+
+      - name: Prime ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ matrix.os }}-${{ env.BUILD_TYPE }}
+          max-size: 1000M
+
+      - name: Configure CMake with Correct Paths
+        run: |
+            cmake . \
+              -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+              -DBUILD_UNITTESTS=ON \
+              -DCMAKE_INSTALL_PREFIX=install \
+              -DCMAKE_CXX_STANDARD=14 \
+              -DCMAKE_CXX_FLAGS="-std=c++14 -I/usr/include/lua" \
+              -DDESIRED_QT_VERSION=5 \
+              -DLUA_INCLUDE_DIR=/usr/include/lua \
+              -DLUA_LIBRARIES=/usr/lib/x86_64-linux-gnu/liblua5.1.so \
+              -DLUAJIT_INCLUDE_DIR=/usr/include/luajit-2.1 \
+              -DLUAJIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libluajit-5.1.so \
+              -Wno-dev
+
+      - name: Build
+        run: |
+          make -j$(nproc) || make -j1  # Fallback to single thread if parallel build fails
+
+      - name: Test
+        run: ./openmw_test_suite
+
+      - name: Install
+        shell: bash
+        run: cmake --install .
+
+      - name: Create Artifact
+        shell: bash
+        run: sudo CI/make_package.ubuntu.sh
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: dreamweave_linux.tar
+          name: dreamweave_linux
