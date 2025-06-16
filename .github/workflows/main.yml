@@ -33,6 +33,7 @@ jobs:
       - name: Install Building Dependencies
         run: |
           sudo apt-get install -y \
+          lua5.1 \
           luajit \
           libluajit-5.1-dev \
           libgtest-dev \
@@ -48,6 +49,12 @@ jobs:
           sudo CI/install_debian_deps.sh gcc openmw-deps openmw-deps-dynamic
           curl -o CrabNet.7z -L https://github.com/DreamWeave-MP/CrabNet/releases/download/Stable-CI/CrabNet-Linux-Release.7z
           7z x -y CrabNet.7z -oextern/raknet
+
+      - name: Create Lua Header Symlink
+        run: |
+          # Create symlink for lua.hpp if it doesn't exist
+          sudo ln -s /usr/include/lua5.1/* / usr/include/
+          sudo ldconfig
 
       - name: Build and install GTest/GMock
         run: |
