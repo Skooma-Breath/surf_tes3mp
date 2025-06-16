@@ -47,29 +47,23 @@ jobs:
           cmake \
           p7zip-full \
           ccache
+
           sudo CI/install_debian_deps.sh gcc openmw-deps openmw-deps-dynamic
           curl -o CrabNet.7z -L https://github.com/DreamWeave-MP/CrabNet/releases/download/Stable-CI/CrabNet-Linux-Release.7z
           7z x -y CrabNet.7z -oextern/raknet
 
-      - name: Set Up Lua Headers Properly
-        run: |
-          # Create a dedicated lua directory
-          sudo mkdir -p /usr/include/lua
-    
-          # Copy all Lua 5.1 headers to standard location
-          sudo cp -r /usr/include/lua5.1/* /usr/include/lua/
-    
-          # Create necessary symlinks for compatibility
-          sudo ln -sf /usr/include/lua /usr/include/lua5.1
-          sudo ln -sf /usr/include/lua/lua.hpp /usr/include/
-          sudo ln -sf /usr/include/lua/lua.h /usr/include/
-          sudo ln -sf /usr/include/lua/luaconf.h /usr/include/
-    
-          # Verify the setup
-          ls -la /usr/include/lua* /usr/include/luaconf.h
-    
-          # Update library cache
-          sudo ldconfig
+       # Create proper Lua header structure
+       sudo mkdir -p /usr/local/include/lua
+       sudo cp -r /usr/include/lua5.1/* /usr/local/include/lua/
+       sudo ln -sf /usr/local/include/lua /usr/include/lua5.1
+       sudo ln -sf /usr/local/include/lua/lua.hpp /usr/include/
+       sudo ln -sf /usr/local/include/lua/lua.h /usr/include/
+       sudo ln -sf /usr/local/include/lua/luaconf.h /usr/include/
+
+       # Verify installation
+       ls -la /usr/include/lua* /usr/include/lua.h /usr/include/luaconf.h
+       sudo ldconfig
+
 
       - name: Fix Hardcoded Paths
         run: |
@@ -87,19 +81,19 @@ jobs:
         run: |
           # Install source files
           sudo apt-get install -y libgtest-dev libgmock-dev
-    
+
           # Build and install GTest
           cd /usr/src/googletest
           sudo cmake .
           sudo make
           sudo cp lib/*.a /usr/lib
-    
+
           # Build and install GMock
           cd /usr/src/gmock
           sudo cmake .
           sudo make
           sudo cp lib/*.a /usr/lib
-    
+
           sudo ldconfig
 
       - name: Prime ccache
@@ -108,22 +102,22 @@ jobs:
           key: ${{ matrix.os }}-${{ env.BUILD_TYPE }}
           max-size: 1000M
 
-      - name: Configure CMake with Correct Paths
+      - name: Configure with Correct Paths
         run: |
-            cmake . \
-              -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
-              -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-              -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-              -DBUILD_UNITTESTS=ON \
-              -DCMAKE_INSTALL_PREFIX=install \
-              -DCMAKE_CXX_STANDARD=14 \
-              -DCMAKE_CXX_FLAGS="-std=c++14 -I/usr/include/lua" \
-              -DDESIRED_QT_VERSION=5 \
-              -DLUA_INCLUDE_DIR=/usr/include/lua \
-              -DLUA_LIBRARIES=/usr/lib/x86_64-linux-gnu/liblua5.1.so \
-              -DLUAJIT_INCLUDE_DIR=/usr/include/luajit-2.1 \
-              -DLUAJIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libluajit-5.1.so \
-              -Wno-dev
+          cmake . \
+            -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DBUILD_UNITTESTS=ON \
+            -DCMAKE_INSTALL_PREFIX=install \
+            -DCMAKE_CXX_STANDARD=14 \
+            -DCMAKE_CXX_FLAGS="-std=c++14 -I/usr/local/include/lua" \
+            -DDESIRED_QT_VERSION=5 \
+            -DLUA_INCLUDE_DIR=/usr/local/include/lua \
+            -DLUA_LIBRARIES=/usr/lib/x86_64-linux-gnu/liblua5.1.so \
+            -DLUAJIT_INCLUDE_DIR=/usr/include/luajit-2.1 \
+            -DLUAJIT_LIBRARY=/usr/lib/x86_64-linux-gnu/libluajit-5.1.so \
+            -Wno-dev
 
       - name: Build
         run: |
