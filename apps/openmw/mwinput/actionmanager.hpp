@@ -10,11 +10,6 @@ namespace osgViewer
     class ScreenCaptureHandler;
 }
 
-namespace MWRender
-{
-    class RenderingManager; // Forward declaration to avoid unnecessary includes
-}
-
 namespace MWInput
 {
     class BindingsManager;
@@ -22,12 +17,11 @@ namespace MWInput
     class ActionManager
     {
     public:
+
         ActionManager(BindingsManager* bindingsManager,
             osgViewer::ScreenCaptureHandler::CaptureOperation* screenCaptureOperation,
             osg::ref_ptr<osgViewer::Viewer> viewer,
-            osg::ref_ptr<osgViewer::ScreenCaptureHandler> screenCaptureHandler
-            //MWRender::RenderingManager* renderingManager
-    );
+            osg::ref_ptr<osgViewer::ScreenCaptureHandler> screenCaptureHandler);
 
         void update(float dt, bool triedToMove);
 
@@ -62,12 +56,6 @@ namespace MWInput
 
         bool isPreviewModeEnabled();
 
-        /// New method for camera zoom functionality
-        void updateCameraZoom(float zoomLevel);
-        void resetCameraZoom();
-
-
-
     private:
         void handleGuiArrowKey(int action);
 
@@ -77,8 +65,6 @@ namespace MWInput
         osg::ref_ptr<osgViewer::Viewer> mViewer;
         osg::ref_ptr<osgViewer::ScreenCaptureHandler> mScreenCaptureHandler;
         osgViewer::ScreenCaptureHandler::CaptureOperation* mScreenCaptureOperation;
-
-        //MWRender::RenderingManager* mRenderingManager; // Add member to store RenderingManager pointer
 
         bool mAlwaysRunActive;
         bool mSneaking;

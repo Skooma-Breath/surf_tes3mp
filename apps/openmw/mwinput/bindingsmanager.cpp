@@ -228,7 +228,7 @@ namespace MWInput
                                 A_ToggleSpell, A_Rest, A_QuickKey1, A_QuickKey2,
                                 A_QuickKey3, A_QuickKey4, A_QuickKey5, A_QuickKey6,
                                 A_QuickKey7, A_QuickKey8, A_QuickKey9, A_QuickKey10,
-                                A_Use, A_Journal, A_Test};
+                                A_Use, A_Journal};
 
         for(int pc : playerChannels)
         {
@@ -258,8 +258,6 @@ namespace MWInput
         std::map<int, SDL_Scancode> defaultKeyBindings;
 
         //Gets the Keyvalue from the Scancode; gives the button in the same place reguardless of keyboard format
-        defaultKeyBindings[A_Test] = SDL_SCANCODE_B;
-
         defaultKeyBindings[A_Activate] = SDL_SCANCODE_SPACE;
         defaultKeyBindings[A_MoveBackward] = SDL_SCANCODE_S;
         defaultKeyBindings[A_MoveForward] = SDL_SCANCODE_W;
@@ -436,8 +434,6 @@ namespace MWInput
     {
         switch (action)
         {
-            case A_Test:
-                return "test";
             case A_Screenshot:
                 return "Screenshot";
             case A_ZoomIn:
@@ -577,8 +573,7 @@ namespace MWInput
             A_CycleSpellLeft, A_CycleSpellRight, A_CycleWeaponLeft, A_CycleWeaponRight, A_AutoMove,
             A_Jump, A_Inventory, A_Journal, A_Rest, A_Console, A_QuickSave, A_QuickLoad,
             A_ToggleHUD, A_Screenshot, A_QuickKeysMenu, A_QuickKey1, A_QuickKey2, A_QuickKey3,
-            A_QuickKey4, A_QuickKey5, A_QuickKey6, A_QuickKey7, A_QuickKey8, A_QuickKey9, A_QuickKey10,
-            A_Test
+            A_QuickKey4, A_QuickKey5, A_QuickKey6, A_QuickKey7, A_QuickKey8, A_QuickKey9, A_QuickKey10
         };
 
         return actions;

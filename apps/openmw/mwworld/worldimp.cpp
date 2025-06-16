@@ -4537,15 +4537,4 @@ namespace MWWorld
     {
         return mCells.getAll(id);
     }
-
-    void World::toggleFieldOfView()
-    {
-        if (mRendering)
-        {
-           
-            std::cout << "inside toggleFieldOfView" << std::endl;
-            mRendering->fovMod();
-           
-        }
-    }
 }

@@ -1233,7 +1233,7 @@ bool MWWorld::ContainerStoreIteratorBase<PtrType>::isEqual (const ContainerStore
         case -1: return true;
     }
 
-    return false;
+    return false;  
 }
 
 template<class PtrType>

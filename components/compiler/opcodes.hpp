@@ -318,16 +318,6 @@ namespace Compiler
         const int opcodeDisableExplicit = 0x200031b;
         const int opcodeGetDisabledExplicit = 0x200031c;
         const int opcodeStartScriptExplicit = 0x200031d;
-        
-        // SURFMOVEMENTS ADDITION begin
-        // const int opcodeSurfAngleMin    = 0x3700;
-        // const int opcodeSurfAngleMax    = 0x3701;
-        // const int opcodeSurfFriction    = 0x3702;
-        // const int opcodeSurfGravity     = 0x3703;
-        // const int opcodeAirAccelerate   = 0x3704;
-        // const int opcodeMaxAirSpeed     = 0x3705;
-        // const int opcodeSurfStickForce  = 0x3706;
-        // SURFMOVEMENTS ADDITION end
     }
 
     namespace Sky

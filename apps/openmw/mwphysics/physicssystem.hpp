@@ -309,13 +309,6 @@ namespace MWPhysics
 
             PhysicsSystem (const PhysicsSystem&);
             PhysicsSystem& operator= (const PhysicsSystem&);
-            
-            // SURFMOVEMENTS ADDITION begin
-            // float mSurfFriction;
-            // float mSurfGravity;
-            // float mAirAcceleration;
-            // float mMaxSurfSpeed;
-            // SURFMOVEMENTS ADDITION end
     };
 }
 

@@ -17,7 +17,6 @@
 #include <deque>
 #include <memory>
 
-
 namespace osg
 {
     class Group;
@@ -71,7 +70,6 @@ namespace DetourNavigator
 
 namespace MWRender
 {
-
     class GroundcoverUpdater;
     class StateUpdater;
 
@@ -92,20 +90,9 @@ namespace MWRender
     class ObjectPaging;
     class Groundcover;
 
-
     class RenderingManager : public MWRender::RenderingInterface
     {
-
     public:
-
-        virtual void fovMod(); // sniper scope zoom
-        static bool aimToggle;
-
-        float getFieldOfView() const { return mFieldOfView; }
-        float getFieldOfViewOverride() const { return mFieldOfViewOverride; }
-        bool isFieldOfViewOverridden() const { return mFieldOfViewOverridden; }
-        float getFirstPersonFieldOfView() const { return mFirstPersonFieldOfView; }
-
         RenderingManager(osgViewer::Viewer* viewer, osg::ref_ptr<osg::Group> rootNode,
                          Resource::ResourceSystem* resourceSystem, SceneUtil::WorkQueue* workQueue,
                          const std::string& resourcePath, DetourNavigator::Navigator& navigator);
@@ -253,8 +240,6 @@ namespace MWRender
         bool pagingUnlockCache();
         void getPagedRefnums(const osg::Vec4i &activeGrid, std::set<ESM::RefNum> &out);
 
-        bool isZoomedIn;
-
     private:
         void updateProjectionMatrix();
         void updateTextureFiltering();
@@ -323,8 +308,6 @@ namespace MWRender
 
         void operator = (const RenderingManager&);
         RenderingManager(const RenderingManager&);
-
-
     };
 
 }
