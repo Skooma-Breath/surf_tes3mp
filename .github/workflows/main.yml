@@ -33,27 +33,39 @@ jobs:
       - name: Install Building Dependencies
         run: |
           sudo apt-get install -y \
-            luajit \
-            libluajit-5.1-dev \
-            libgtest-dev \
-            googletest \
-            qtbase5-dev \
-            qt5-qmake \
-            build-essential \
-            cmake \
-            p7zip-full \
-            ccache
+          luajit \
+          libluajit-5.1-dev \
+          libgtest-dev \
+          libgmock-dev \
+          googletest \
+          google-mock \
+          qtbase5-dev \
+          qt5-qmake \
+          build-essential \
+          cmake \
+          p7zip-full \
+          ccache
           sudo CI/install_debian_deps.sh gcc openmw-deps openmw-deps-dynamic
           curl -o CrabNet.7z -L https://github.com/DreamWeave-MP/CrabNet/releases/download/Stable-CI/CrabNet-Linux-Release.7z
           7z x -y CrabNet.7z -oextern/raknet
 
-      - name: Build and install GTest
+      - name: Build and install GTest/GMock
         run: |
-          sudo apt-get install -y libgtest-dev
+          # Install source files
+          sudo apt-get install -y libgtest-dev libgmock-dev
+    
+          # Build and install GTest
           cd /usr/src/googletest
           sudo cmake .
           sudo make
           sudo cp lib/*.a /usr/lib
+    
+          # Build and install GMock
+          cd /usr/src/gmock
+          sudo cmake .
+          sudo make
+          sudo cp lib/*.a /usr/lib
+    
           sudo ldconfig
 
       - name: Prime ccache
