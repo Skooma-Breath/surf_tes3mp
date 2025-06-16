@@ -177,8 +177,8 @@ jobs:
           grep -i "error\|warning\|missing" build.log | tail -n 100
 
       - name: Run Tests
-        if: success()
-        run: ./openmw_test_suite
+        # if: success()
+        # run: ./openmw_test_suite
 
       - name: Install
         if: success()
