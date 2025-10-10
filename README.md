@@ -1,4 +1,4 @@
-# TES3MP Surf Edition
+# surf_tes3mp
 
 This fork of **TES3MP** adds **Source engine–style surfing physics** — similar to *Counter-Strike: Source*
 
