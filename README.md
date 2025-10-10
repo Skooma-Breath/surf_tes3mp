@@ -36,7 +36,7 @@ content=first_ramp.omwaddon
 ## 🧙 If you use the setup wizard to select your game path
 
 reopen config/openmw.cfg afterwards and make sure these lines are still at the bottom:
-```
+```ini
 data="./Data Files"
 content=Morrowind.esm
 content=Tribunal.esm
