@@ -1855,24 +1855,33 @@ namespace MWMechanics
         }
     }
 
-    void Actors::updateCombatMusic ()
+    void Actors::updateCombatMusic()
     {
         MWWorld::Ptr player = getPlayer();
         const osg::Vec3f playerPos = player.getRefData().getPosition().asVec3();
         bool hasHostiles = false; // need to know this to play Battle music
 
-        for(PtrActorMap::iterator iter(mActors.begin()); iter != mActors.end(); ++iter)
+        // Check if player is in combat
+        if (MWBase::Environment::get().getWorld()->getPlayer().isInCombat())
         {
-            if (iter->first == player) continue;
-
-            bool inProcessingRange = (playerPos - iter->first.getRefData().getPosition().asVec3()).length2() <= mActorsProcessingRange*mActorsProcessingRange;
-            if (!inProcessingRange) continue;
-
-            MWMechanics::CreatureStats& stats = iter->first.getClass().getCreatureStats(iter->first);
-            if (!stats.isDead() && stats.getAiSequence().isInCombat())
+            hasHostiles = true;
+        }
+        else
+        {
+            // Check if any NPCs around the player are in combat
+            for (PtrActorMap::iterator iter(mActors.begin()); iter != mActors.end(); ++iter)
             {
-                hasHostiles = true;
-                break;
+                if (iter->first == player) continue;
+
+                bool inProcessingRange = (playerPos - iter->first.getRefData().getPosition().asVec3()).length2() <= mActorsProcessingRange * mActorsProcessingRange;
+                if (!inProcessingRange) continue;
+
+                MWMechanics::CreatureStats& stats = iter->first.getClass().getCreatureStats(iter->first);
+                if (!stats.isDead() && stats.getAiSequence().isInCombat())
+                {
+                    hasHostiles = true;
+                    break;
+                }
             }
         }
 
@@ -1880,7 +1889,7 @@ namespace MWMechanics
         static int currentMusic = 0;
 
         if (currentMusic != 1 && !hasHostiles && !(player.getClass().getCreatureStats(player).isDead() &&
-        MWBase::Environment::get().getSoundManager()->isMusicPlaying()))
+            MWBase::Environment::get().getSoundManager()->isMusicPlaying()))
         {
             MWBase::Environment::get().getSoundManager()->playPlaylist(std::string("Explore"));
             currentMusic = 1;

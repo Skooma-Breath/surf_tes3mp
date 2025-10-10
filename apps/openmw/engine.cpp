@@ -77,6 +77,16 @@
 
 #include "mwstate/statemanagerimp.hpp"
 
+#include <shlobj.h> // For SHGetFolderPathW
+#include <boost/filesystem.hpp>
+#include <boost/locale.hpp>
+namespace bconv = boost::locale::conv;
+#if defined(_WIN32) || defined(__WINDOWS__)
+static const char* const applicationName = "OpenMW";
+#else
+static const char* const applicationName = "openmw";
+#endif
+
 namespace
 {
     void checkSDLError(int ret)
@@ -598,7 +608,8 @@ void OMW::Engine::setSkipMenu (bool skipMenu, bool newGame)
     mNewGame = newGame;
 }
 
-std::string OMW::Engine::loadSettings (Settings::Manager & settings)
+// if settings.cfg doesn't exist in the config directory, copy the default settings file (not tested on linux....)
+std::string OMW::Engine::loadSettings(Settings::Manager& settings) 
 {
     // Create the settings manager and load default settings file
     const std::string localdefault = (mCfgMgr.getLocalPath() / "defaults.bin").string();
@@ -610,10 +621,51 @@ std::string OMW::Engine::loadSettings (Settings::Manager & settings)
     else if (boost::filesystem::exists(globaldefault))
         settings.loadDefault(globaldefault);
     else
-        throw std::runtime_error ("No default settings file found! Make sure the file \"defaults.bin\" was properly installed.");
+        throw std::runtime_error("No default settings file found! Make sure the file \"defaults.bin\" was properly installed.");
 
     // load user settings if they exist
     const std::string settingspath = (mCfgMgr.getUserConfigPath() / "settings.cfg").string();
+
+#ifdef _WIN32
+    // Try to find settings.cfg in the Windows default user path
+    if (!boost::filesystem::exists(settingspath))
+    {
+        WCHAR path[MAX_PATH + 1];
+        memset(path, 0, sizeof(path));
+        boost::filesystem::path userPath(".");
+        if (SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, nullptr, 0, path)))
+        {
+            userPath = boost::filesystem::path(bconv::utf_to_utf<char>(path));
+            boost::filesystem::path winSettings = userPath / "My Games" / applicationName / "settings.cfg";
+            if (boost::filesystem::exists(winSettings))
+            {
+                // Copy contents to settingspath
+                std::ifstream src(winSettings.string(), std::ios::binary);
+                std::ofstream dst(settingspath, std::ios::binary);
+                dst << src.rdbuf();
+            }
+        }
+    }
+#else
+    // Linux/Unix: check for settings.cfg in XDG_CONFIG_HOME or ~/.config
+    if (!boost::filesystem::exists(settingspath))
+    {
+        boost::filesystem::path userConfigDir;
+        const char* xdgConfig = std::getenv("XDG_CONFIG_HOME");
+        if (xdgConfig)
+            userConfigDir = boost::filesystem::path(xdgConfig);
+        else
+            userConfigDir = boost::filesystem::path(std::getenv("HOME")) / ".config";
+        boost::filesystem::path linuxSettings = userConfigDir / mName / "settings.cfg";
+        if (boost::filesystem::exists(linuxSettings) && linuxSettings != settingspath)
+        {
+            std::ifstream src(linuxSettings.string(), std::ios::binary);
+            std::ofstream dst(settingspath, std::ios::binary);
+            dst << src.rdbuf();
+        }
+    }
+#endif
+
     if (boost::filesystem::exists(settingspath))
         settings.loadUser(settingspath);
 

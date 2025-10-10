@@ -1,3 +1,59 @@
+# surf_tes3mp
+
+This fork of **TES3MP** adds **Source engine–style surfing physics** — similar to *Counter-Strike: Source*
+
+---
+
+## ⚙️ Configuration
+
+This build **does not share** the usual openmw.cfg file in  
+`Documents\My Games\OpenMW\`.
+
+All configuration files are inside the included **`config`** folder.
+
+The two main files are:
+- `config/openmw.cfg` — game data and content list  
+- `config/settings.cfg` — graphics, audio, and gameplay options  
+- the `data files` folder contains mod files for a port of surf utopia
+
+---
+
+## 🧭 How to Set Up `openmw.cfg`
+
+Open `config/openmw.cfg` in a text editor and scroll to the bottom.  
+Edit the data path to match your Morrowind install, for example:
+
+```ini
+data="C:\GOG Games\Morrowind\Data Files"
+data="./Data Files"
+content=Morrowind.esm
+content=Tribunal.esm
+content=Bloodmoon.esm
+content=first_ramp.omwaddon
+```
+📝 If your Morrowind is installed somewhere else, change the first data="..." line to point to your own Data Files folder.
+
+## 🧙 If you use the setup wizard to select your game path
+
+reopen config/openmw.cfg afterwards and make sure these lines are still at the bottom:
+```
+data="./Data Files"
+content=Morrowind.esm
+content=Tribunal.esm
+content=Bloodmoon.esm
+content=first_ramp.omwaddon
+```
+This ensures the included surf test map loads correctly.
+
+🌐 Surf Server
+
+The included config/tes3mp-default.cfg is already set up to connect to the public Surf server — just launch tes3mp.exe.
+
+🏄‍♂️
+That’s it — configure openmw.cfg, launch TES3MP, and start surfing
+
+
+
 TES3MP
 ======
 
