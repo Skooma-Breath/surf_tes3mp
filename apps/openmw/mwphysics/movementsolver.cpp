@@ -26,13 +26,7 @@
 
 namespace MWPhysics
 {
-    // Source Engine-inspired physics constants
-    //const float GRAVITY = 800.0f;       // Gravity in units/s�
-    //const float AIR_ACCEL = 10.0f;      // Air acceleration (sv_airaccelerate)
-    //const float GROUND_ACCEL = 10.0f;   // Ground acceleration (sv_accelerate)
-    //const float FRICTION = 4.0f;        // Ground friction
-    //const float MAX_AIR_SPEED = 1000.0f; // Maximum air speed cap
-
+    
     static bool isActor(const btCollisionObject* obj)
     {
         assert(obj);
@@ -129,7 +123,7 @@ namespace MWPhysics
     }
 
     // Clip velocity against a surface normal for sliding (Source-like collision)
-    osg::Vec3f ClipVelocity(const osg::Vec3f& in, const osg::Vec3f& normal, float overbounce = 1.1f)
+    osg::Vec3f ClipVelocity(const osg::Vec3f& in, const osg::Vec3f& normal, float overbounce)
     {
         float backoff = in * normal;
         if (backoff < 0)
@@ -139,43 +133,30 @@ namespace MWPhysics
         return in - normal * backoff;
     }
 
-    // Calculate desired velocity based on input and movement state
-    osg::Vec3f calculateWishVelocity(const ESM::Position& refpos, const osg::Vec3f& movement, bool isInAir)
+    osg::Vec3f calculateWishVelocity(const ESM::Position& refpos, const osg::Vec3f& movement, bool isInAir, bool isFlying, bool isSwimming)
     {
-        if (isInAir)
+        // For flying or swimming, allow full 3D movement (pitch + yaw rotation)
+        if (isFlying || isSwimming)
             return (osg::Quat(refpos.rot[0], osg::Vec3f(-1, 0, 0)) *
                 osg::Quat(refpos.rot[2], osg::Vec3f(0, 0, -1))) * movement;
-        else
-            return (osg::Quat(refpos.rot[2], osg::Vec3f(0, 0, -1))) * movement;
+
+        // For regular airborne movement (surfing) or ground movement, only use horizontal rotation
+        // This prevents upward/downward movement when looking up/down while air-strafing
+        return (osg::Quat(refpos.rot[2], osg::Vec3f(0, 0, -1))) * movement;
     }
-
-    //void handleSlopeSliding(btCollisionObject* actor, const btVector3& slopeNormal, float timeStep)
-    //{
-    //    // Get the current velocity
-    //    btVector3 velocity = actor->getLinearVelocity();
-
-    //    // Project velocity onto the slope plane (remove component pushing into the slope)
-    //    btVector3 projectedVelocity = velocity - slopeNormal * velocity.dot(slopeNormal);
-
-    //    // Apply gravity along the slope
-    //    btVector3 gravity = btVector3(0, 0, -9.8f) * timeStep;  // Adjust gravity value as needed
-    //    btVector3 gravityAlongSlope = gravity - slopeNormal * gravity.dot(slopeNormal);
-
-    //    // Update velocity with projected velocity and gravity along the slope
-    //    velocity = projectedVelocity + gravityAlongSlope;
-
-    //    // Set the new velocity
-    //    actor->setLinearVelocity(velocity);
-
-    //    // Reduce restitution to prevent bouncing
-    //    actor->setRestitution(0.0f);
-    //}
 
     void MovementSolver::move(ActorFrameData& actor, float time, const btCollisionWorld* collisionWorld,
         WorldFrameData& worldData)
     {
         auto* physicActor = actor.mActorRaw;
         const ESM::Position& refpos = actor.mRefpos;
+        // bool isSwimming = actor.mWaterlevel > actor.mPosition.z() + physicActor->getHalfExtents().z() * 0.5f;
+        // Swim level calculation
+        osg::Vec3f halfExtents = physicActor->getHalfExtents();
+        static const float fSwimHeightScale = MWBase::Environment::get().getWorld()->getStore().get<ESM::GameSetting>().find("fSwimHeightScale")->mValue.getFloat();
+        float swimlevel = actor.mWaterlevel + halfExtents.z() - (physicActor->getRenderingHalfExtents().z() * 2 * fSwimHeightScale);
+        bool isSwimming = (actor.mPosition.z() < swimlevel);
+
 
         // Early-out for totally static creatures
         {
@@ -190,31 +171,21 @@ namespace MWPhysics
         // Skip collision if disabled or requested
         if (!physicActor->getCollisionMode() || actor.mSkipCollisionDetection)
         {
-            actor.mPosition += calculateWishVelocity(refpos, actor.mMovement, true) * time;
+            actor.mPosition += calculateWishVelocity(refpos, actor.mMovement, true, actor.mFlying, isSwimming) * time;
             return;
         }
 
         const btCollisionObject* colobj = physicActor->getCollisionObject();
-        osg::Vec3f halfExtents = physicActor->getHalfExtents();
         actor.mPosition.z() += halfExtents.z();  // Adjust for collision mesh offset
-
-        // Swim level calculation
-        static const float fSwimHeightScale = MWBase::Environment::get().getWorld()->getStore().get<ESM::GameSetting>().find("fSwimHeightScale")->mValue.getFloat();
-        float swimlevel = actor.mWaterlevel + halfExtents.z() - (physicActor->getRenderingHalfExtents().z() * 2 * fSwimHeightScale);
-
-        // Physics constants (adjustable based on testing)
-        const float FRICTION = 5.0f;        // Ground friction (increase to 6.0f if too slippery)
-        const float GROUND_ACCEL = 10.0f;   // Ground acceleration (Source default)
-        //const float AIR_ACCEL = 10.0f;      // Air acceleration (Source default)
-        const float GRAVITY = Constants::GravityConst * Constants::UnitsPerMeter;  // ~627.2 units/s�
-        const float JUMP_SPEED = 268.0f;    // Jump velocity (adjust for unit scale)
+        
+        const float GRAVITY = Constants::GravityConst * Constants::UnitsPerMeter * GRAVITY_MULT;  // ~627.2 units
 
         // Get current inertial force (persistent velocity)
         osg::Vec3f velocity = physicActor->getInertialForce();
 
         // Calculate desired movement direction and speed
         bool isInAir = !physicActor->getOnGround() || physicActor->getOnSlope();
-        osg::Vec3f wishvel = calculateWishVelocity(refpos, actor.mMovement, isInAir);
+        osg::Vec3f wishvel = calculateWishVelocity(refpos, actor.mMovement, isInAir, actor.mFlying, isSwimming);
         float wishspeed = wishvel.length();
         osg::Vec3f wishdir = wishvel;
         if (wishspeed > 0) wishdir.normalize();
@@ -232,7 +203,7 @@ namespace MWPhysics
         bool isOnSlope = physicActor->getOnSlope();
 
         // Movement logic
-        if (isOnGround && !isOnSlope)
+        if (!isSwimming && !actor.mFlying && isOnGround && !isOnSlope)
         {
             // Ground movement: Apply friction to horizontal components
             float speed = sqrt(velocity.x() * velocity.x() + velocity.y() * velocity.y());
@@ -259,8 +230,22 @@ namespace MWPhysics
 
             velocity.z() = 0;  // Stay on ground
         }
+        else if (isSwimming)
+        {
+            // Underwater: zero momentum and no gravity; movement = direct wish velocity
+            velocity = wishvel;
+        }
+        else if (actor.mFlying)
+        {
+            // Levitation: allow free movement without gravity. You can choose to
+            // either accumulate or zero inertia. To keep it snappy like swimming:
+            velocity = wishvel;
+        }
         else
         {
+            //TODO
+            // add the thing from the place.
+            // 
             // Air or slope movement (surfing)
             float currentspeed = velocity * wishdir;
             float addspeed = wishspeed - currentspeed;
@@ -330,7 +315,7 @@ namespace MWPhysics
             else
             {
                 remainingTime *= (1.0f - tracer.mFraction);
-                velocity = ClipVelocity(velocity, tracer.mPlaneNormal);
+                velocity = ClipVelocity(velocity, tracer.mPlaneNormal, OVERBOUNCE);
 
                 if ((newPosition - tracer.mEndPos).length2() > sCollisionMargin * sCollisionMargin)
                 {
@@ -344,7 +329,7 @@ namespace MWPhysics
         // Final ground check
         bool isOnGroundFinal = false;
         bool isOnSlopeFinal = false;
-        if (forceGroundTest || (velocity.z() <= 0.f && newPosition.z() >= swimlevel))
+        if (!actor.mFlying && !isSwimming && forceGroundTest || (velocity.z() <= 0.f && newPosition.z() >= swimlevel))
         {
             osg::Vec3f from = newPosition;
             auto dropDistance = 2 * sGroundOffset + (physicActor->getOnGround() ? sStepSizeDown : 0);
@@ -383,8 +368,8 @@ namespace MWPhysics
         {
             float zComponent = tracer.mPlaneNormal.z();
             bool walkable = zComponent >= 0.8f;
-            std::cout << "Slope normal: (" << tracer.mPlaneNormal.x() << ", " << tracer.mPlaneNormal.y() << ", " << tracer.mPlaneNormal.z()
-                << "), z-component: " << zComponent << ", walkable: " << (walkable ? "true" : "false") << std::endl;
+            /*std::cout << "Slope normal: (" << tracer.mPlaneNormal.x() << ", " << tracer.mPlaneNormal.y() << ", " << tracer.mPlaneNormal.z()
+                << "), z-component: " << zComponent << ", walkable: " << (walkable ? "true" : "false") << std::endl;*/
         }
 
         // Update actor states

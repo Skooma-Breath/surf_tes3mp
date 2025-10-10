@@ -66,12 +66,13 @@ void ConfigurationManager::readConfiguration(boost::program_options::variables_m
     mergeComposingVariables(variables, composingVariables, description);
     boost::program_options::notify(variables);
 
+    // ONLY LOAD THE LOCAL ONE FUCK
     // read either local or global config depending on type of installation
     composingVariables = separateComposingVariables(variables, description);
     bool loaded = loadConfig(mFixedPath.getLocalPath(), variables, description);
     mergeComposingVariables(variables, composingVariables, description);
     boost::program_options::notify(variables);
-    if (!loaded)
+   if (!loaded)
     {
         composingVariables = separateComposingVariables(variables, description);
         loadConfig(mFixedPath.getGlobalConfigPath(), variables, description);

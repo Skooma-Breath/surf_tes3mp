@@ -211,11 +211,13 @@ std::string Utils::getVersionInfo(std::string appName, std::string version, std:
 
     stream << appName << " " << version << " (" << getOperatingSystemType() << " " << getArchitectureType() << ")" << std::endl;
     stream << "Protocol version: " << protocol << std::endl;
-    stream << "Oldest compatible commit hash: " << commitHash.substr(0, 10) << std::endl;
+    stream << "Oldest compatible commit hash: "
+        << (commitHash.empty() ? "<none>" : commitHash.substr(0, 10)) << std::endl;
     stream << "------------------------------------------------------------" << std::endl;
 
     return stream.str();
 }
+
 
 void Utils::printWithWidth(std::ostringstream &sstr, std::string str, size_t width)
 {

@@ -22,9 +22,14 @@ namespace MWPhysics
     // Currently set to 0 because having the "unstuck"ing code run whenever possible prevents some glitchy snagging issues
     static constexpr float sAllowedPenetration = 0.0f;
 
-    // Surf mechanic constants
-    static constexpr float AIR_ACCEL = 70.0f;
-    static constexpr float MAX_AIR_SPEED = 2000.0f;
+    // Surf mechanic vars - made non-const so they can be modified via Lua
+    inline float AIR_ACCEL = 70.0f;
+    inline float MAX_AIR_SPEED = 2000.0f;
+    inline float FRICTION = 5.0f;
+    inline float GROUND_ACCEL = 10.0f;
+    inline float JUMP_SPEED = 268.0f;
+    inline float GRAVITY_MULT = 1.0f;        // Multiplier for gravity (1.0 = normal, 0.5 = half gravity, 2.0 = double)
+    inline float OVERBOUNCE = 1.1f;          // Bounce multiplier for collision response
 
 }
 
