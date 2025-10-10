@@ -388,9 +388,15 @@ namespace MWWorld
         Make it possible to clear the moves to other cells tracked for objects, allowing for
         on-the-fly cell resets that don't cause crashes
     */
-    void CellStore::clearMovesToCells()
+    bool CellStore::clearMovesToCells()
     {
         MWBase::World* world = MWBase::Environment::get().getWorld();
+
+        /*if (!mMovedHere.empty() || !mMovedToAnotherCell.empty())
+        {
+            std::cout << "[CellStore] Skipping cell reset due to object(s) moved here from another cell." << std::endl;
+            return true;
+        }*/
 
         for (auto &reference : mMovedHere)
         {
@@ -408,6 +414,8 @@ namespace MWWorld
 
         mMovedHere.empty();
         mMovedToAnotherCell.empty();
+
+        return false;
     }
     /*
         End of tes3mp addition

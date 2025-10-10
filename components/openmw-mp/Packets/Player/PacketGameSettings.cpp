@@ -20,6 +20,15 @@ void PacketGameSettings::Packet(RakNet::BitStream *newBitstream, bool send)
     RW(player->waitAllowed, send);
     RW(player->enforcedLogLevel, send);
     RW(player->physicsFramerate, send);
+    
+    // Physics/surf constants
+    RW(player->airAccel, send);
+    RW(player->maxAirSpeed, send);
+    RW(player->friction, send);
+    RW(player->groundAccel, send);
+    RW(player->jumpSpeed, send);
+    RW(player->gravityMult, send);
+    RW(player->overbounce, send);
 
     std::string mapIndex;
     std::string mapValue;

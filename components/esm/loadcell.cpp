@@ -107,7 +107,7 @@ namespace ESM
         }
     }
 
-    void Cell::loadCell(ESMReader &esm, bool saveContext)
+    void Cell::loadCell(ESMReader &esm, bool saveContext)   
     {
         bool isLoaded = false;
         mHasAmbi = false;

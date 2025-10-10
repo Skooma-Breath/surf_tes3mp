@@ -400,7 +400,14 @@ void Wizard::MainWizard::writeSettings()
     }
 
     // Game settings
-    QFile file(userPath + QLatin1String("openmw.cfg"));
+    QFile debugFile("wizard_debug.log");
+    if (debugFile.open(QIODevice::Append | QIODevice::Text)) {
+        QTextStream out(&debugFile);
+        out << "Wizard will write config to: " << userPath + QLatin1String("openmw.cfg") << "\n";
+        debugFile.close();
+    }
+
+    QFile file(QDir(userPath).filePath("openmw.cfg"));
 
     if (!file.open(QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate)) {
         // File cannot be opened or created
