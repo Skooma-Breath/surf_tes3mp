@@ -61,6 +61,8 @@ namespace mwmp
                 MWPhysics::JUMP_SPEED = player->jumpSpeed;
                 MWPhysics::GRAVITY_MULT = player->gravityMult;
                 MWPhysics::OVERBOUNCE = player->overbounce;
+                MWPhysics::RAMP_ANGLE = player->rampAngle;
+                MWPhysics::SURF_PHYSICS_ENABLED = player->surfPhysicsEnabled;
 
                 for (auto setting : player->gameSettings)
                 {

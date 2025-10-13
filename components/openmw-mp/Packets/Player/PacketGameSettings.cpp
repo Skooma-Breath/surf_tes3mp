@@ -29,6 +29,8 @@ void PacketGameSettings::Packet(RakNet::BitStream *newBitstream, bool send)
     RW(player->jumpSpeed, send);
     RW(player->gravityMult, send);
     RW(player->overbounce, send);
+    RW(player->rampAngle, send);
+    RW(player->surfPhysicsEnabled, send);
 
     std::string mapIndex;
     std::string mapValue;

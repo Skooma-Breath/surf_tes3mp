@@ -26,6 +26,7 @@
     {"GetJumpSpeed",                SettingFunctions::GetJumpSpeed},\
     {"GetGravityMult",              SettingFunctions::GetGravityMult},\
     {"GetOverbounce",               SettingFunctions::GetOverbounce},\
+    {"GetRampAngle",                SettingFunctions::GetRampAngle},\
     \
     {"SetAirAccel",                 SettingFunctions::SetAirAccel},\
     {"SetMaxAirSpeed",              SettingFunctions::SetMaxAirSpeed},\
@@ -34,6 +35,9 @@
     {"SetJumpSpeed",                SettingFunctions::SetJumpSpeed},\
     {"SetGravityMult",              SettingFunctions::SetGravityMult},\
     {"SetOverbounce",               SettingFunctions::SetOverbounce},\
+    {"SetRampAngle",                SettingFunctions::SetRampAngle},\
+    {"GetSurfPhysicsEnabled",       SettingFunctions::GetSurfPhysicsEnabled},\
+    {"SetSurfPhysicsEnabled",       SettingFunctions::SetSurfPhysicsEnabled},\
     \
     {"SendSettings",                SettingFunctions::SendSettings}
 
@@ -232,6 +236,22 @@ public:
     static double GetOverbounce(unsigned short pid) noexcept;
 
     /**
+    * \brief Get the rampAngle value for a player.
+    *
+    * \param pid The player ID.
+    * \return The rampAngle value.
+    */
+    static double GetRampAngle(unsigned short pid) noexcept;
+
+    /**
+    * \brief Get whether surf physics are enabled for a player.
+    *
+    * \param pid The player ID.
+    * \return True if surf physics are enabled, false otherwise.
+    */
+    static bool GetSurfPhysicsEnabled(unsigned short pid) noexcept;
+
+    /**
     * \brief Set the air acceleration value for a player.
     *
     * This changes the value for that player in the server memory, but does not by itself send a packet.
@@ -314,6 +334,28 @@ public:
     * \return void
     */
     static void SetOverbounce(unsigned short pid, double value) noexcept;
+
+    /**
+    * \brief Set the rampangle value for a player.
+    *
+    * This changes the value for that player in the server memory, but does not by itself send a packet.
+    *
+    * \param pid The player ID.
+    * \param value The new rampAngle value.
+    * \return void
+    */
+    static void SetRampAngle(unsigned short pid, double value) noexcept;
+
+    /**
+    * \brief Set whether surf physics are enabled for a player.
+    *
+    * This changes the value for that player in the server memory, but does not by itself send a packet.
+    *
+    * \param pid The player ID.
+    * \param state The new state for surf physics (true for enabled, false for disabled).
+    * \return void
+    */
+    static void SetSurfPhysicsEnabled(unsigned short pid, bool state) noexcept;
 
     static void SendSettings(unsigned short pid, bool sendToOtherPlayers, bool skipAttachedPlayer) noexcept;
 };

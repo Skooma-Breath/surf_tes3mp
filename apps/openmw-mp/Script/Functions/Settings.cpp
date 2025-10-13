@@ -148,6 +148,22 @@ double SettingFunctions::GetOverbounce(unsigned short pid) noexcept
     return player->overbounce;
 }
 
+double SettingFunctions::GetRampAngle(unsigned short pid) noexcept
+{
+    Player* player;
+    GET_PLAYER(pid, player, 0.0);
+
+    return player->rampAngle;
+}
+
+bool SettingFunctions::GetSurfPhysicsEnabled(unsigned short pid) noexcept
+{
+    Player* player;
+    GET_PLAYER(pid, player, false); // Default to false if player not found
+
+    return player->surfPhysicsEnabled;
+}
+
 void SettingFunctions::SetAirAccel(unsigned short pid, double value) noexcept
 {
     Player *player;
@@ -202,6 +218,22 @@ void SettingFunctions::SetOverbounce(unsigned short pid, double value) noexcept
     GET_PLAYER(pid, player, );
 
     player->overbounce = static_cast<float>(value);
+}
+
+void SettingFunctions::SetRampAngle(unsigned short pid, double value) noexcept
+{
+    Player* player;
+    GET_PLAYER(pid, player, );
+
+    player->rampAngle = static_cast<float>(value);
+}
+
+void SettingFunctions::SetSurfPhysicsEnabled(unsigned short pid, bool state) noexcept
+{
+    Player* player;
+    GET_PLAYER(pid, player, );
+
+    player->surfPhysicsEnabled = state;
 }
 
 void SettingFunctions::SendSettings(unsigned short pid, bool sendToOtherPlayers, bool skipAttachedPlayer) noexcept

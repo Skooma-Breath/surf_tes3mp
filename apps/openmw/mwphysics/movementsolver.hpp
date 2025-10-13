@@ -50,8 +50,8 @@ namespace MWPhysics
         static void unstuck(ActorFrameData& actor, const btCollisionWorld* collisionWorld);
         
         // SURF ADDITION
-        static bool isSurfableSlope(const osg::Vec3f& normal);
-        static osg::Vec3f calculateSlideDirection(const osg::Vec3f& normal);
+        static void moveSurf(ActorFrameData& actor, float time, const btCollisionWorld* collisionWorld, WorldFrameData& worldData);
+        static void moveVanilla(ActorFrameData& actor, float time, const btCollisionWorld* collisionWorld, WorldFrameData& worldData);
     };
 }
 
