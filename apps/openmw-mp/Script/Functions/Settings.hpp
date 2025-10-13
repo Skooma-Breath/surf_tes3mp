@@ -355,9 +355,10 @@ public:
     * \param state The new state for surf physics (true for enabled, false for disabled).
     * \return void
     */
-    static void SetSurfPhysicsEnabled(unsigned short pid, bool state) noexcept;
+    static void SetSurfPhysicsEnabled(unsigned short pid, int enabled) noexcept;
 
     static void SendSettings(unsigned short pid, bool sendToOtherPlayers, bool skipAttachedPlayer) noexcept;
 };
 
 #endif //OPENMW_SETTINGSAPI_HPP
+
