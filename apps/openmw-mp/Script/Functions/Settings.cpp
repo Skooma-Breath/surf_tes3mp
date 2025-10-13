@@ -228,12 +228,12 @@ void SettingFunctions::SetRampAngle(unsigned short pid, double value) noexcept
     player->rampAngle = static_cast<float>(value);
 }
 
-void SettingFunctions::SetSurfPhysicsEnabled(unsigned short pid, bool state) noexcept
+void SettingFunctions::SetSurfPhysicsEnabled(unsigned short pid, int enabled) noexcept
 {
     Player* player;
     GET_PLAYER(pid, player, );
 
-    player->surfPhysicsEnabled = state;
+    player->surfPhysicsEnabled = (enabled != 0);
 }
 
 void SettingFunctions::SendSettings(unsigned short pid, bool sendToOtherPlayers, bool skipAttachedPlayer) noexcept
@@ -249,3 +249,4 @@ void SettingFunctions::SendSettings(unsigned short pid, bool sendToOtherPlayers,
     if (sendToOtherPlayers)
         packet->Send(true);
 }
+
