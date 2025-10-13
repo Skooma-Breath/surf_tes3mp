@@ -544,6 +544,7 @@ void DedicatedPlayer::setSpellsActive()
 
 void DedicatedPlayer::updateMarker()
 {
+    return; // markerless for now
     if (!markerEnabled)
     {
         return;
@@ -565,12 +566,14 @@ void DedicatedPlayer::updateMarker()
 
 void DedicatedPlayer::enableMarker()
 {
+    return; // markerless for now
     markerEnabled = true;
     updateMarker();
 }
 
 void DedicatedPlayer::removeMarker()
 {
+    return; // markerless for now
     if (!markerEnabled)
         return;
 

@@ -373,6 +373,38 @@ bool Launcher::MainDialog::setupGameSettings()
 
 bool Launcher::MainDialog::setupGameData()
 {
+    QString localPath = QString::fromUtf8(mCfgMgr.getLocalPath().string().c_str());
+    QString userPath = QString::fromUtf8(mCfgMgr.getUserConfigPath().string().c_str());
+    QString globalPath = QString::fromUtf8(mCfgMgr.getGlobalPath().string().c_str());
+
+    QStringList paths = { localPath, userPath, globalPath };
+    QStringList names = { "localPath", "userPath", "globalPath" };
+
+    for (int i = 0; i < paths.size(); ++i) {
+        qDebug() << names[i] << ":" << paths[i];
+    }
+
+    QString cfgFilePath = userPath + "/openmw.cfg";
+    QFile cfgFile(cfgFilePath);
+    if (cfgFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&cfgFile);
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            if (line.trimmed().startsWith("data=")) {
+                qDebug() << "Found data line:" << line;
+            }
+            if (line.trimmed().startsWith("data=")) {
+                QString value = line.section('=', 1).trimmed();
+                value = value.remove('\"'); // Remove quotes if present
+                mGameSettings.addDataDir(value);
+            }
+        }
+        cfgFile.close();
+    }
+    else {
+        qDebug() << "Could not open config file:" << cfgFilePath;
+    }
+
     QStringList dataDirs;
 
     // Check if the paths actually contain data files
@@ -384,6 +416,12 @@ bool Launcher::MainDialog::setupGameData()
 
         if (!dir.entryList(filters).isEmpty())
             dataDirs.append(path3);
+    }
+
+    // Debug: Print contents of dataDirs
+    qDebug() << "Data directories found:";
+    for (const QString& dir : dataDirs) {
+        qDebug() << dir;
     }
 
     if (dataDirs.isEmpty())

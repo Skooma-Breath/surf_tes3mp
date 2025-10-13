@@ -3047,8 +3047,16 @@ namespace MWWorld
         MWWorld::CellStore *cellStore = cellController->getCellStore(cell);
 
         if (cellStore != nullptr)
-            cellStore->clearMovesToCells();
+        {
+            if (cellStore->clearMovesToCells()) 
+            {
+                std::cout << "[World] Cell reset aborted for " << cell.mName << std::endl;
+                return;  // Abort if the cell shouldn't be cleared
+            }
+        }
+
         mCells.clear(cell);
+
     }
     /*
         End of tes3mp addition
