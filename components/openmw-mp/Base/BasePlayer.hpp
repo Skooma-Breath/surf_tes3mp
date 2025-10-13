@@ -177,11 +177,12 @@ namespace mwmp
             displayCreatureName = false;
             resetStats = false;
             enforcedLogLevel = -1;
+            //mSurfPhysicsEnabled = false; // Initialize the new member
         }
 
         BasePlayer()
         {
-
+            //mSurfPhysicsEnabled = false; // Initialize for default constructor too
         }
 
         RakNet::RakNetGUID guid;
@@ -227,6 +228,18 @@ namespace mwmp
         bool bedRestAllowed = true;
         bool wildernessRestAllowed = true;
         bool waitAllowed = true;
+        
+        // Physics/surf constants
+        float airAccel = 70.0f;
+        float maxAirSpeed = 2000.0f;
+        float friction = 5.0f;
+        float groundAccel = 10.0f;
+        float jumpSpeed = 268.0f;
+        float gravityMult = 1.0f;
+        float overbounce = 1.1f;
+        float rampAngle = 0.8f;
+
+        bool surfPhysicsEnabled = false; // New member for surf physics toggle
 
         bool ignorePosPacket;
 

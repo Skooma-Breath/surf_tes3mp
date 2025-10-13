@@ -58,7 +58,8 @@ LinuxPath::LinuxPath(const std::string& application_name)
 
 boost::filesystem::path LinuxPath::getUserConfigPath() const
 {
-    return getEnv("XDG_CONFIG_HOME", getUserHome() / ".config") / mName;
+    //return getEnv("XDG_CONFIG_HOME", getUserHome() / ".config") / mName;
+    return getLocalPath() / "config";
 }
 
 boost::filesystem::path LinuxPath::getUserDataPath() const

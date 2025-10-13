@@ -49,7 +49,7 @@ namespace MWWorld
             {
                 MWWorld::LiveCellRef<T> *ref = dynamic_cast<MWWorld::LiveCellRef<T>*>(mRef);
                 if(ref) return ref;
-
+                
                 std::stringstream str;
                 str<< "Bad LiveCellRef cast to "<<typeid(T).name()<<" from ";
                 /*
@@ -63,7 +63,7 @@ namespace MWWorld
                 */
 
                 else str<< "an empty object";
-
+     
                 throw std::runtime_error(str.str());
             }
 
@@ -134,7 +134,7 @@ namespace MWWorld
         {
             const MWWorld::LiveCellRef<T> *ref = dynamic_cast<const MWWorld::LiveCellRef<T>*>(mRef);
             if(ref) return ref;
-
+            
             std::stringstream str;
             str<< "Bad LiveCellRef cast to "<<typeid(T).name()<<" from ";
             /*

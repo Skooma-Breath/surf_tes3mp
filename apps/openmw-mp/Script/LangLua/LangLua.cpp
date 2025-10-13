@@ -2,6 +2,7 @@
 #include "LangLua.hpp"
 #include <Script/Script.hpp>
 #include <Script/Types.hpp>
+#include "../ScriptFunctions.hpp"
 
 std::set<std::string> LangLua::packagePath;
 std::set<std::string> LangLua::packageCPath;
@@ -114,33 +115,6 @@ template<> struct LuaFunctionDefinition<1> { static constexpr LuaFunctionData Fu
 template<> struct LuaFunctionDefinition<2> { static constexpr LuaFunctionData FunctionInfo{"MakePublic", LangLua::MakePublic}; };
 template<> struct LuaFunctionDefinition<3> { static constexpr LuaFunctionData FunctionInfo{"CallPublic", LangLua::CallPublic}; };
 
-
-#ifdef __arm__
-template<std::size_t... Is>
-struct indices {};
-template<std::size_t N, std::size_t... Is>
-struct build_indices : build_indices<N-1, N-1, Is...> {};
-template<std::size_t... Is>
-struct build_indices<0, Is...> : indices<Is...> {};
-template<std::size_t N>
-using IndicesFor = build_indices<N>;
-
-template<size_t... Indices>
-LuaFuctionData *functions(indices<Indices...>)
-{
-
-    static LuaFuctionData functions_[sizeof...(Indices)]{
-            F_<Indices>::F...
-    };
-
-    static_assert(
-            sizeof(functions_) / sizeof(functions_[0]) ==
-            sizeof(ScriptFunctions::functions) / sizeof(ScriptFunctions::functions[0]),
-            "Not all functions have been mapped to Lua");
-
-    return functions_;
-}
-#else
 template<unsigned int I>
 struct LuaFunctionInitializer
 {
@@ -160,47 +134,62 @@ struct LuaFunctionInitializer<0>
     }
 };
 
+// #ifdef __arm__
 template<size_t LastI>
 LuaFunctionData *GetLuaFunctions()
 {
     static LuaFunctionData functions_[LastI];
     LuaFunctionInitializer<LastI - 1>::Initialize(functions_);
-
     static_assert(
         sizeof(functions_) / sizeof(functions_[0]) ==
         sizeof(ScriptFunctions::functions) / sizeof(ScriptFunctions::functions[0]),
         "Not all functions have been mapped to Lua");
-
     return functions_;
 }
-#endif
+// #else
+
+// template<size_t LastI>
+// LuaFunctionData *GetLuaFunctions()
+// {
+//     static LuaFunctionData functions_[LastI];
+//     LuaFunctionInitializer<LastI - 1>::Initialize(functions_);
+
+//     static_assert(
+//         sizeof(functions_) / sizeof(functions_[0]) ==
+//         sizeof(ScriptFunctions::functions) / sizeof(ScriptFunctions::functions[0]),
+//         "Not all functions have been mapped to Lua");
+
+//     return functions_;
+// }
+// #endif
+
+// #ifdef __arm__
+// template<size_t... Indices>
+// LuaFunctionData* GetLuaFunctions(indices<Indices...>);
+// #endif
 
 void LangLua::LoadProgram(const char *filename)
 {
     int err = 0;
 
-    if ((err =luaL_loadfile(lua, filename)) != 0)
+    if ((err = luaL_loadfile(lua, filename)) != 0)
         throw std::runtime_error("Lua script " + std::string(filename) + " error (" + std::to_string(err) + "): \"" +
                             std::string(lua_tostring(lua, -1)) + "\"");
 
     constexpr auto functions_n = sizeof(ScriptFunctions::functions) / sizeof(ScriptFunctions::functions[0]);
 
-#ifdef __arm__
-    LuaFunctionData *functions_ = GetLuaFunctions(IndicesFor<functions_n>{});
-#else
-    LuaFunctionData *functions_ = GetLuaFunctions<sizeof(ScriptFunctions::functions) / sizeof(ScriptFunctions::functions[0])>();
-#endif
-luabridge::Namespace tes3mp = luabridge::getGlobalNamespace(lua).beginNamespace("tes3mp");
+    LuaFunctionData *functions_ = GetLuaFunctions<functions_n>();
 
-for (unsigned i = 0; i < functions_n; i++)
-    tes3mp.addCFunction(functions_[i].name, functions_[i].func);
+    luabridge::Namespace tes3mp = luabridge::getGlobalNamespace(lua).beginNamespace("tes3mp");
 
-tes3mp.endNamespace();
+    for (unsigned i = 0; i < functions_n; i++)
+        tes3mp.addCFunction(functions_[i].name, functions_[i].func);
 
-if ((err = lua_pcall(lua, 0, 0, 0)) != 0) // Run once script for load in memory.
-    throw std::runtime_error("Lua script " + std::string(filename) + " error (" + std::to_string(err) + "): \"" +
-                        std::string(lua_tostring(lua, -1)) + "\"");
+    tes3mp.endNamespace();
 
+    if ((err = lua_pcall(lua, 0, 0, 0)) != 0) // Run once script for load in memory.
+        throw std::runtime_error("Lua script " + std::string(filename) + " error (" + std::to_string(err) + "): \"" +
+                            std::string(lua_tostring(lua, -1)) + "\"");
 }
 
 int LangLua::FreeProgram()
@@ -329,3 +318,25 @@ void LangLua::AddPackageCPath(const std::string& path)
 {
     packageCPath.emplace(path);
 }
+
+// LuaFunctionData* GetLuaFunctions()
+// {
+//     static std::vector<LuaFunctionData> luaFunctions;
+
+//     if (luaFunctions.empty()) {
+//         for (const auto& fn : ScriptFunctions::functions) {
+//             LuaFunctionData data;
+//             data.name = fn.name;
+//             data.func = reinterpret_cast<lua_CFunction>(fn.func);
+//             luaFunctions.push_back(data);
+//         }
+
+//         LuaFunctionData nullTerminator;
+//         nullTerminator.name = nullptr;
+//         nullTerminator.func = nullptr;
+//         luaFunctions.push_back(nullTerminator);
+//     }
+
+//     return luaFunctions.data();
+// }
+

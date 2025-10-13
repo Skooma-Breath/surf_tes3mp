@@ -43,9 +43,9 @@ WindowsPath::WindowsPath(const std::string& application_name)
 
 boost::filesystem::path WindowsPath::getUserConfigPath() const
 {
-    boost::filesystem::path userPath(".");
+    //boost::filesystem::path userPath(".");
 
-    WCHAR path[MAX_PATH + 1];
+    /*WCHAR path[MAX_PATH + 1];
     memset(path, 0, sizeof(path));
 
     if(SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, nullptr, 0, path)))
@@ -53,7 +53,9 @@ boost::filesystem::path WindowsPath::getUserConfigPath() const
         userPath = boost::filesystem::path(bconv::utf_to_utf<char>(path));
     }
 
-    return userPath / "My Games" / mName;
+    return userPath / "My Games" / mName;*/
+
+    return getLocalPath() / "config";
 }
 
 boost::filesystem::path WindowsPath::getUserDataPath() const

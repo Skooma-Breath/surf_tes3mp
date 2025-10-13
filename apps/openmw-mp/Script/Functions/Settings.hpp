@@ -19,6 +19,26 @@
     {"SetVRSettingValue",           SettingFunctions::SetVRSettingValue},\
     {"ClearVRSettingValues",        SettingFunctions::ClearVRSettingValues},\
     \
+    {"GetAirAccel",                 SettingFunctions::GetAirAccel},\
+    {"GetMaxAirSpeed",              SettingFunctions::GetMaxAirSpeed},\
+    {"GetFriction",                 SettingFunctions::GetFriction},\
+    {"GetGroundAccel",              SettingFunctions::GetGroundAccel},\
+    {"GetJumpSpeed",                SettingFunctions::GetJumpSpeed},\
+    {"GetGravityMult",              SettingFunctions::GetGravityMult},\
+    {"GetOverbounce",               SettingFunctions::GetOverbounce},\
+    {"GetRampAngle",                SettingFunctions::GetRampAngle},\
+    \
+    {"SetAirAccel",                 SettingFunctions::SetAirAccel},\
+    {"SetMaxAirSpeed",              SettingFunctions::SetMaxAirSpeed},\
+    {"SetFriction",                 SettingFunctions::SetFriction},\
+    {"SetGroundAccel",              SettingFunctions::SetGroundAccel},\
+    {"SetJumpSpeed",                SettingFunctions::SetJumpSpeed},\
+    {"SetGravityMult",              SettingFunctions::SetGravityMult},\
+    {"SetOverbounce",               SettingFunctions::SetOverbounce},\
+    {"SetRampAngle",                SettingFunctions::SetRampAngle},\
+    {"GetSurfPhysicsEnabled",       SettingFunctions::GetSurfPhysicsEnabled},\
+    {"SetSurfPhysicsEnabled",       SettingFunctions::SetSurfPhysicsEnabled},\
+    \
     {"SendSettings",                SettingFunctions::SendSettings}
 
 class SettingFunctions
@@ -160,11 +180,183 @@ public:
     static void ClearVRSettingValues(unsigned short pid);
 
     /**
+    * \brief Get the air acceleration value for a player.
+    *
+    * \param pid The player ID.
+    * \return The air acceleration value.
+    */
+    static double GetAirAccel(unsigned short pid) noexcept;
+
+    /**
+    * \brief Get the maximum air speed value for a player.
+    *
+    * \param pid The player ID.
+    * \return The maximum air speed value.
+    */
+    static double GetMaxAirSpeed(unsigned short pid) noexcept;
+
+    /**
+    * \brief Get the ground friction value for a player.
+    *
+    * \param pid The player ID.
+    * \return The ground friction value.
+    */
+    static double GetFriction(unsigned short pid) noexcept;
+
+    /**
+    * \brief Get the ground acceleration value for a player.
+    *
+    * \param pid The player ID.
+    * \return The ground acceleration value.
+    */
+    static double GetGroundAccel(unsigned short pid) noexcept;
+
+    /**
+    * \brief Get the jump speed value for a player.
+    *
+    * \param pid The player ID.
+    * \return The jump speed value.
+    */
+    static double GetJumpSpeed(unsigned short pid) noexcept;
+
+    /**
+    * \brief Get the gravity multiplier value for a player.
+    *
+    * \param pid The player ID.
+    * \return The gravity multiplier value.
+    */
+    static double GetGravityMult(unsigned short pid) noexcept;
+
+    /**
+    * \brief Get the overbounce value for a player.
+    *
+    * \param pid The player ID.
+    * \return The overbounce value.
+    */
+    static double GetOverbounce(unsigned short pid) noexcept;
+
+    /**
+    * \brief Get the rampAngle value for a player.
+    *
+    * \param pid The player ID.
+    * \return The rampAngle value.
+    */
+    static double GetRampAngle(unsigned short pid) noexcept;
+
+    /**
+    * \brief Get whether surf physics are enabled for a player.
+    *
+    * \param pid The player ID.
+    * \return True if surf physics are enabled, false otherwise.
+    */
+    static bool GetSurfPhysicsEnabled(unsigned short pid) noexcept;
+
+    /**
+    * \brief Set the air acceleration value for a player.
+    *
+    * This changes the value for that player in the server memory, but does not by itself send a packet.
+    *
+    * \param pid The player ID.
+    * \param value The new air acceleration value.
+    * \return void
+    */
+    static void SetAirAccel(unsigned short pid, double value) noexcept;
+
+    /**
+    * \brief Set the maximum air speed value for a player.
+    *
+    * This changes the value for that player in the server memory, but does not by itself send a packet.
+    *
+    * \param pid The player ID.
+    * \param value The new maximum air speed value.
+    * \return void
+    */
+    static void SetMaxAirSpeed(unsigned short pid, double value) noexcept;
+
+    /**
+    * \brief Set the ground friction value for a player.
+    *
+    * This changes the value for that player in the server memory, but does not by itself send a packet.
+    *
+    * \param pid The player ID.
+    * \param value The new ground friction value.
+    * \return void
+    */
+    static void SetFriction(unsigned short pid, double value) noexcept;
+
+    /**
+    * \brief Set the ground acceleration value for a player.
+    *
+    * This changes the value for that player in the server memory, but does not by itself send a packet.
+    *
+    * \param pid The player ID.
+    * \param value The new ground acceleration value.
+    * \return void
+    */
+    static void SetGroundAccel(unsigned short pid, double value) noexcept;
+
+    /**
+    * \brief Set the jump speed value for a player.
+    *
+    * This changes the value for that player in the server memory, but does not by itself send a packet.
+    *
+    * \param pid The player ID.
+    * \param value The new jump speed value.
+    * \return void
+    */
+    static void SetJumpSpeed(unsigned short pid, double value) noexcept;
+
+    /**
     * \brief Send a PlayerSettings packet to the player affected by it.
     *
     * \param pid The player ID to send it to.
     * \return void
     */
+
+    /**
+    * \brief Set the gravity multiplier value for a player.
+    *
+    * This changes the value for that player in the server memory, but does not by itself send a packet.
+    *
+    * \param pid The player ID.
+    * \param value The new gravity multiplier value (1.0 = normal, 0.5 = half gravity, 2.0 = double).
+    * \return void
+    */
+    static void SetGravityMult(unsigned short pid, double value) noexcept;
+
+    /**
+    * \brief Set the overbounce value for a player.
+    *
+    * This changes the value for that player in the server memory, but does not by itself send a packet.
+    *
+    * \param pid The player ID.
+    * \param value The new overbounce value.
+    * \return void
+    */
+    static void SetOverbounce(unsigned short pid, double value) noexcept;
+
+    /**
+    * \brief Set the rampangle value for a player.
+    *
+    * This changes the value for that player in the server memory, but does not by itself send a packet.
+    *
+    * \param pid The player ID.
+    * \param value The new rampAngle value.
+    * \return void
+    */
+    static void SetRampAngle(unsigned short pid, double value) noexcept;
+
+    /**
+    * \brief Set whether surf physics are enabled for a player.
+    *
+    * This changes the value for that player in the server memory, but does not by itself send a packet.
+    *
+    * \param pid The player ID.
+    * \param state The new state for surf physics (true for enabled, false for disabled).
+    * \return void
+    */
+    static void SetSurfPhysicsEnabled(unsigned short pid, bool state) noexcept;
+
     static void SendSettings(unsigned short pid, bool sendToOtherPlayers, bool skipAttachedPlayer) noexcept;
 };
 

@@ -6,6 +6,7 @@
 #include "apps/openmw/mwgui/windowmanagerimp.hpp"
 
 #include "../PlayerProcessor.hpp"
+#include <apps/openmw/mwphysics/constants.hpp>
 
 namespace mwmp
 {
@@ -51,6 +52,17 @@ namespace mwmp
                 }
 
                 MWBase::Environment::get().getWorld()->setPhysicsFramerate(player->physicsFramerate);
+                
+                // Apply physics/surf constants from server
+                MWPhysics::AIR_ACCEL = player->airAccel;
+                MWPhysics::MAX_AIR_SPEED = player->maxAirSpeed;
+                MWPhysics::FRICTION = player->friction;
+                MWPhysics::GROUND_ACCEL = player->groundAccel;
+                MWPhysics::JUMP_SPEED = player->jumpSpeed;
+                MWPhysics::GRAVITY_MULT = player->gravityMult;
+                MWPhysics::OVERBOUNCE = player->overbounce;
+                MWPhysics::RAMP_ANGLE = player->rampAngle;
+                MWPhysics::SURF_PHYSICS_ENABLED = player->surfPhysicsEnabled;
 
                 for (auto setting : player->gameSettings)
                 {
