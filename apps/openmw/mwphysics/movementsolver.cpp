@@ -694,6 +694,7 @@ namespace MWPhysics
         {
             float zComponent = tracer.mPlaneNormal.z();
             bool walkable = zComponent >= RAMP_ANGLE;
+            isOnGroundFinal = false;
             /*std::cout << "Slope normal: (" << tracer.mPlaneNormal.x() << ", " << tracer.mPlaneNormal.y() << ", " << tracer.mPlaneNormal.z()
                 << "), z-component: " << zComponent << ", walkable: " << (walkable ? "true" : "false") << std::endl;*/
         }
