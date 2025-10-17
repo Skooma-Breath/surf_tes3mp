@@ -3,6 +3,7 @@
 This fork of **TES3MP** adds **Source engine–style surfing physics** — similar to *Counter-Strike: Source*
 
 https://www.youtube.com/watch?v=BzXkL_etyPo
+https://discord.gg/TSqQTVexe5
 
 ---
 
