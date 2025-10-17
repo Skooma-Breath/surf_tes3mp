@@ -24,6 +24,9 @@
 
 #include <cmath>
 
+#include "../mwbase/windowmanager.hpp"
+#include <iomanip>
+
 namespace MWPhysics
 {
     
@@ -715,6 +718,17 @@ namespace MWPhysics
         //log position and speed
         //std::cout << "Position: (" << actor.mPosition.x() << ", " << actor.mPosition.y() << ", " << actor.mPosition.z() << ")" << std::endl;
         //std::cout << "Velocity: (" << velocity.x() << ", " << velocity.y() << ", " << velocity.z() << ")" << std::endl;
+
+        // Calculate speed magnitude
+        float speed = std::sqrt(velocity.x() * velocity.x() + velocity.y() * velocity.y() + velocity.z() * velocity.z());
+
+        // Format velocity string
+        std::stringstream ss;
+        ss << "Speed: " << std::fixed << std::setprecision(1) << speed;
+            //<< " (" << velocity.x() << ", " << velocity.y() << ", " << velocity.z() << ")";
+
+        // Update HUD
+        MWBase::Environment::get().getWindowManager()->setVelocityText(ss.str());
     }
 
     btVector3 addMarginToDelta(btVector3 delta)

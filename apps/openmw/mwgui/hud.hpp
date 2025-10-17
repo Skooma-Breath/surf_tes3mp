@@ -51,6 +51,8 @@ namespace MWGui
 
         void setCellName(const std::string& cellName);
 
+        void setVelocityText(const std::string& velocityText);
+
         bool getWorldMouseOver() { return mWorldMouseOver; }
 
         MyGUI::Widget* getEffectBox() { return mEffectBox; }
@@ -59,6 +61,8 @@ namespace MWGui
         void resetEnemy();
 
         void clear() override;
+
+        void toggleVelocityDisplay();
 
     private:
         MyGUI::ProgressBar *mHealth, *mMagicka, *mStamina, *mEnemyHealth, *mDrowning;
@@ -74,6 +78,9 @@ namespace MWGui
         MyGUI::TextBox* mCellNameBox;
         MyGUI::TextBox* mWeaponSpellBox;
         MyGUI::Widget *mDrowningFrame, *mDrowningFlash;
+
+        MyGUI::TextBox* mVelocityBox;
+        bool mVelocityVisible;
 
         // bottom left elements
         int mHealthManaStaminaBaseLeft, mWeapBoxBaseLeft, mSpellBoxBaseLeft, mSneakBoxBaseLeft;

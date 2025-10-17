@@ -71,6 +71,8 @@ namespace MWInput
         std::string mUserFile;
 
         bool mDragDrop;
+
+        bool mVelocityDisplayEnabled;
     };
 }
 #endif

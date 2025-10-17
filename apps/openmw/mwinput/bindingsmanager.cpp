@@ -180,6 +180,7 @@ namespace MWInput
     BindingsManager::BindingsManager(const std::string& userFile, bool userFileExists)
         : mUserFile(userFile)
         , mDragDrop(false)
+        , mVelocityDisplayEnabled(true)
     {
         std::string file = userFileExists ? userFile : "";
         mInputBinder = std::make_unique<InputControlSystem>(file);
@@ -296,6 +297,7 @@ namespace MWInput
         defaultKeyBindings[A_AlwaysRun] = SDL_SCANCODE_CAPSLOCK;
         defaultKeyBindings[A_QuickSave] = SDL_SCANCODE_F5;
         defaultKeyBindings[A_QuickLoad] = SDL_SCANCODE_F9;
+        defaultKeyBindings[A_ToggleVelocityDisplay] = SDL_SCANCODE_F6;
 
         std::map<int, int> defaultMouseButtonBindings;
         defaultMouseButtonBindings[A_Inventory] = SDL_BUTTON_RIGHT;

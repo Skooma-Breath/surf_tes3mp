@@ -299,6 +299,9 @@ namespace MWInput
             if (inputManager->getControlSwitch("playerviewswitch") && inputManager->getControlSwitch("playercontrols") && !windowManager->isGuiMode())
                 MWBase::Environment::get().getWorld()->adjustCameraDistance(ZOOM_SCALE);
             break;
+        case A_ToggleVelocityDisplay:
+            windowManager->toggleVelocityDisplay();
+            break;
         case A_QuickSave:
             quickSave();
             break;

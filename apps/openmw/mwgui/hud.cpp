@@ -120,6 +120,8 @@ namespace MWGui
         , mMinimap(nullptr)
         , mCrosshair(nullptr)
         , mCellNameBox(nullptr)
+        , mVelocityBox(nullptr)
+        , mVelocityVisible(true)
         , mDrowningFrame(nullptr)
         , mDrowningFlash(nullptr)
         , mHealthManaStaminaBaseLeft(0)
@@ -191,6 +193,8 @@ namespace MWGui
         getWidget(mMinimapButton, "MiniMapButton");
         mMinimapButton->eventMouseButtonClick += MyGUI::newDelegate(this, &HUD::onMapClicked);
 
+        getWidget(mVelocityBox, "VelocityDisplay");
+
         getWidget(mCellNameBox, "CellName");
         getWidget(mWeaponSpellBox, "WeaponSpellName");
 
@@ -212,6 +216,22 @@ namespace MWGui
         mMainWidget->eventMouseButtonClick.clear();
 
         delete mSpellIcons;
+    }
+
+    void HUD::setVelocityText(const std::string& velocityText)
+    {
+        if (mVelocityBox)
+        {
+            mVelocityBox->setCaption(velocityText);
+            mVelocityBox->setVisible(mVelocityVisible);
+        }
+    }
+
+    void HUD::toggleVelocityDisplay()
+    {
+        mVelocityVisible = !mVelocityVisible;
+        if (mVelocityBox)
+            mVelocityBox->setVisible(mVelocityVisible);
     }
 
     void HUD::setValue(const std::string& id, const MWMechanics::DynamicStat<float>& value)

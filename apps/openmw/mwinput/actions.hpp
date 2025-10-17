@@ -73,6 +73,8 @@ namespace MWInput
         A_ZoomIn,
         A_ZoomOut,
 
+        A_ToggleVelocityDisplay,    // Toggle velocity display
+
         A_Last                      // Marker for the last item
     };
 }

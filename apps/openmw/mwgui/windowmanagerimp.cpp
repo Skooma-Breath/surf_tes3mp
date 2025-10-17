@@ -2385,4 +2385,16 @@ namespace MWGui
     {
         return mStatsWatcher->getWatchedActor();
     }
+
+    void WindowManager::setVelocityText(const std::string& text)
+    {
+        if (mHud)
+            mHud->setVelocityText(text);
+    }
+
+    void WindowManager::toggleVelocityDisplay()
+    {
+        if (mHud)
+            mHud->toggleVelocityDisplay();
+    }
 }
