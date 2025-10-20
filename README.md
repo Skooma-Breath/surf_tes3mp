@@ -51,7 +51,7 @@ This ensures the included surf test map loads correctly.
 
 🌐 Surf Server
 
-The included config/tes3mp-default.cfg is already set up to connect to the public Surf server — just launch tes3mp.exe.
+The included tes3mp-client-default.cfg is already set up to connect to the public Surf server — just launch tes3mp.exe.
 
 🏄‍♂️
 That’s it — configure openmw.cfg, launch TES3MP, and start surfing
