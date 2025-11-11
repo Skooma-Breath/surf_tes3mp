@@ -478,7 +478,7 @@ namespace MWGui
     bool injectKeyPress(MyGUI::KeyCode key, unsigned int text, bool repeat=false) override;
     bool injectKeyRelease(MyGUI::KeyCode key) override;
 
-    void setVelocityText(const std::string& text) override;
+    void setVelocityText(const std::string& text) override; // surf addition
     void toggleVelocityDisplay() override;
 
   private:

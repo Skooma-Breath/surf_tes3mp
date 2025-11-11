@@ -180,7 +180,7 @@ namespace MWInput
     BindingsManager::BindingsManager(const std::string& userFile, bool userFileExists)
         : mUserFile(userFile)
         , mDragDrop(false)
-        , mVelocityDisplayEnabled(true)
+        , mVelocityDisplayEnabled(true) //surf addition
     {
         std::string file = userFileExists ? userFile : "";
         mInputBinder = std::make_unique<InputControlSystem>(file);

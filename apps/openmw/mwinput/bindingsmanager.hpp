@@ -72,7 +72,7 @@ namespace MWInput
 
         bool mDragDrop;
 
-        bool mVelocityDisplayEnabled;
+        bool mVelocityDisplayEnabled; //surf addition
     };
 }
 #endif

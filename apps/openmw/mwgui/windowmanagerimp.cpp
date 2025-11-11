@@ -2386,13 +2386,13 @@ namespace MWGui
         return mStatsWatcher->getWatchedActor();
     }
 
-    void WindowManager::setVelocityText(const std::string& text)
+    void WindowManager::setVelocityText(const std::string& text) // surf addition
     {
         if (mHud)
             mHud->setVelocityText(text);
     }
 
-    void WindowManager::toggleVelocityDisplay()
+    void WindowManager::toggleVelocityDisplay() // surf addition
     {
         if (mHud)
             mHud->toggleVelocityDisplay();

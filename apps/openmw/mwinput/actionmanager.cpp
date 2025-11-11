@@ -300,7 +300,7 @@ namespace MWInput
                 MWBase::Environment::get().getWorld()->adjustCameraDistance(ZOOM_SCALE);
             break;
         case A_ToggleVelocityDisplay:
-            windowManager->toggleVelocityDisplay();
+            windowManager->toggleVelocityDisplay(); //surf addition
             break;
         case A_QuickSave:
             quickSave();

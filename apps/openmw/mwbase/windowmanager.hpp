@@ -446,7 +446,7 @@ namespace MWBase
             virtual MWWorld::Ptr getWatchedActor() const = 0;
 
             virtual void setVelocityText(const std::string& text) = 0;
-            virtual void toggleVelocityDisplay() = 0;
+            virtual void toggleVelocityDisplay() = 0; // surf addition
     };
 }
 

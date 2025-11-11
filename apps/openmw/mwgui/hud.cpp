@@ -218,7 +218,7 @@ namespace MWGui
         delete mSpellIcons;
     }
 
-    void HUD::setVelocityText(const std::string& velocityText)
+    void HUD::setVelocityText(const std::string& velocityText) // surf addition
     {
         if (mVelocityBox)
         {
@@ -227,7 +227,7 @@ namespace MWGui
         }
     }
 
-    void HUD::toggleVelocityDisplay()
+    void HUD::toggleVelocityDisplay() // surf addition
     {
         mVelocityVisible = !mVelocityVisible;
         if (mVelocityBox)

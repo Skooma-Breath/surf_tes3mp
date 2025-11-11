@@ -29,7 +29,7 @@
 
 namespace MWPhysics
 {
-    
+
     static bool isActor(const btCollisionObject* obj)
     {
         assert(obj);
@@ -129,11 +129,24 @@ namespace MWPhysics
     osg::Vec3f ClipVelocity(const osg::Vec3f& in, const osg::Vec3f& normal, float overbounce)
     {
         float backoff = in * normal;
+
+        // Only apply overbounce when moving INTO the surface (backoff < 0)
         if (backoff < 0)
             backoff *= overbounce;
+        // When moving away or parallel, no bounce needed
         else
-            backoff /= overbounce;
-        return in - normal * backoff;
+            backoff *= 1.0f;
+
+        osg::Vec3f out = in - normal * backoff;
+
+        // Clamp small components to prevent floating point drift
+        for (int i = 0; i < 3; i++)
+        {
+            if (out[i] > -0.1f && out[i] < 0.1f)
+                out[i] = 0.0f;
+        }
+
+        return out;
     }
 
     osg::Vec3f calculateWishVelocity(const ESM::Position& refpos, const osg::Vec3f& movement, bool isInAir, bool isFlying, bool isSwimming)
@@ -496,7 +509,7 @@ namespace MWPhysics
         {
             // actor.mPosition += calculateWishVelocity(refpos, actor.mMovement, true, actor.mFlying, isSwimming) * time;
             // return;
-            
+
             actor.mPosition += (osg::Quat(refpos.rot[0], osg::Vec3f(-1, 0, 0)) *
                 osg::Quat(refpos.rot[2], osg::Vec3f(0, 0, -1))
                 ) * actor.mMovement * time;
@@ -505,7 +518,7 @@ namespace MWPhysics
 
         const btCollisionObject* colobj = physicActor->getCollisionObject();
         actor.mPosition.z() += halfExtents.z();  // Adjust for collision mesh offset
-        
+
         const float GRAVITY = Constants::GravityConst * Constants::UnitsPerMeter * GRAVITY_MULT;  // ~627.2 units
 
         // Get current inertial force (persistent velocity)
@@ -586,7 +599,7 @@ namespace MWPhysics
 
             // Apply gravity
             velocity.z() -= GRAVITY * time;
-            
+
         }
 
         // Collision and movement loop
@@ -725,9 +738,9 @@ namespace MWPhysics
         // Format velocity string
         std::stringstream ss;
         ss << "Speed: " << std::fixed << std::setprecision(1) << speed;
-            //<< " (" << velocity.x() << ", " << velocity.y() << ", " << velocity.z() << ")";
+        //<< " (" << velocity.x() << ", " << velocity.y() << ", " << velocity.z() << ")";
 
-        // Update HUD
+    // Update HUD
         MWBase::Environment::get().getWindowManager()->setVelocityText(ss.str());
     }
 

@@ -62,7 +62,7 @@ namespace MWGui
 
         void clear() override;
 
-        void toggleVelocityDisplay();
+        void toggleVelocityDisplay(); // surf addition
 
     private:
         MyGUI::ProgressBar *mHealth, *mMagicka, *mStamina, *mEnemyHealth, *mDrowning;
