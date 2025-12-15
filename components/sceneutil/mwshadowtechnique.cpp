@@ -866,6 +866,20 @@ void SceneUtil::MWShadowTechnique::setPolygonOffset(float factor, float units)
 void SceneUtil::MWShadowTechnique::setShadowFadeStart(float shadowFadeStart)
 {
     _shadowFadeStart = shadowFadeStart;
+
+    // Update the uniform as well
+    if (_fadeStartUniform.valid())
+    {
+        _fadeStartUniform->set(shadowFadeStart);
+    }
+}
+
+void SceneUtil::MWShadowTechnique::setMaximumShadowMapDistance(float distance)
+{
+    if (_maxDistanceUniform.valid())
+    {
+        _maxDistanceUniform->set(distance);
+    }
 }
 
 void SceneUtil::MWShadowTechnique::enableFrontFaceCulling()
@@ -1547,16 +1561,16 @@ void MWShadowTechnique::createShaders()
     osg::ref_ptr<osg::Uniform> baseTextureSampler = new osg::Uniform("baseTexture",(int)_baseTextureUnit);
     osg::ref_ptr<osg::Uniform> baseTextureUnit = new osg::Uniform("baseTextureUnit",(int)_baseTextureUnit);
 
-    osg::ref_ptr<osg::Uniform> maxDistance = new osg::Uniform("maximumShadowMapDistance", (float)settings->getMaximumShadowMapDistance());
-    osg::ref_ptr<osg::Uniform> fadeStart = new osg::Uniform("shadowFadeStart", (float)_shadowFadeStart);
+    _maxDistanceUniform = new osg::Uniform("maximumShadowMapDistance", (float)settings->getMaximumShadowMapDistance());
+    _fadeStartUniform = new osg::Uniform("shadowFadeStart", (float)_shadowFadeStart);
 
     for (auto& perFrameUniformList : _uniforms)
     {
         perFrameUniformList.clear();
         perFrameUniformList.push_back(baseTextureSampler);
         perFrameUniformList.emplace_back(baseTextureUnit.get());
-        perFrameUniformList.push_back(maxDistance);
-        perFrameUniformList.push_back(fadeStart);
+        perFrameUniformList.push_back(_maxDistanceUniform);
+        perFrameUniformList.push_back(_fadeStartUniform);
     }
 
     for(unsigned int sm_i=0; sm_i<settings->getNumShadowMapsPerLight(); ++sm_i)

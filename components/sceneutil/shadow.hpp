@@ -26,6 +26,8 @@ namespace SceneUtil
         void enableIndoorMode();
 
         void enableOutdoorMode();
+
+        void enableQuasiExMode();
     protected:
         bool mEnableShadows;
 
@@ -35,6 +37,10 @@ namespace SceneUtil
 
         unsigned int mOutdoorShadowCastingMask;
         unsigned int mIndoorShadowCastingMask;
+
+        float mOutdoorShadowDistance;
+        float mIndoorShadowDistance;
+        float mQuasiExShadowDistance;
     };
 }
 

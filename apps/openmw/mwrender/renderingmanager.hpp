@@ -172,7 +172,7 @@ namespace MWRender
         /// Get the bounding box of the given object in screen coordinates as (minX, minY, maxX, maxY), with (0,0) being the top left corner.
         osg::Vec4f getScreenBounds(const osg::BoundingBox &worldbb);
 
-        void setSkyEnabled(bool enabled);
+        void setSkyEnabled(bool enabled, bool isQuasiEx = false);
 
         bool toggleRenderMode(RenderMode mode);
 

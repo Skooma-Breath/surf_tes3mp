@@ -30,12 +30,24 @@ namespace SceneUtil
         mShadowSettings->setNumShadowMapsPerLight(numberOfShadowMapsPerLight);
         mShadowSettings->setBaseShadowTextureUnit(8 - numberOfShadowMapsPerLight);
 
-        const float maximumShadowMapDistance = Settings::Manager::getFloat("maximum shadow map distance", "Shadows");
-        if (maximumShadowMapDistance > 0)
+        // Store all three shadow distances
+        mOutdoorShadowDistance = Settings::Manager::getFloat("maximum shadow map distance", "Shadows");
+
+        mIndoorShadowDistance = Settings::Manager::getFloat("indoor maximum shadow map distance", "Shadows");
+        if (mIndoorShadowDistance <= 0.0f)
+            mIndoorShadowDistance = mOutdoorShadowDistance;
+
+        mQuasiExShadowDistance = Settings::Manager::getFloat("quasiex maximum shadow map distance", "Shadows");
+        if (mQuasiExShadowDistance <= 0.0f)
+            mQuasiExShadowDistance = mOutdoorShadowDistance;
+
+        // Apply outdoor distance initially (we start in outdoor mode)
+        if (mOutdoorShadowDistance > 0)
         {
             const float shadowFadeStart = std::min(std::max(0.f, Settings::Manager::getFloat("shadow fade start", "Shadows")), 1.f);
-            mShadowSettings->setMaximumShadowMapDistance(maximumShadowMapDistance);
-            mShadowTechnique->setShadowFadeStart(maximumShadowMapDistance * shadowFadeStart);
+            mShadowSettings->setMaximumShadowMapDistance(mOutdoorShadowDistance);
+            mShadowTechnique->setShadowFadeStart(mOutdoorShadowDistance * shadowFadeStart);
+            mShadowTechnique->setMaximumShadowMapDistance(mOutdoorShadowDistance);
         }
 
         mShadowSettings->setMinimumShadowMapNearFarRatio(Settings::Manager::getFloat("minimum lispsm near far ratio", "Shadows"));
@@ -169,7 +181,22 @@ namespace SceneUtil
     void ShadowManager::enableIndoorMode()
     {
         if (Settings::Manager::getBool("enable indoor shadows", "Shadows"))
+        {
             mShadowSettings->setCastsShadowTraversalMask(mIndoorShadowCastingMask);
+
+            // ADDED: Apply indoor shadow distance
+            if (mIndoorShadowDistance > 0)
+            {
+                const float shadowFadeStart = std::min(std::max(0.f, Settings::Manager::getFloat("shadow fade start", "Shadows")), 1.f);
+
+                // CRITICAL: Set in mShadowSettings so it's used during cull traversal
+                mShadowSettings->setMaximumShadowMapDistance(mIndoorShadowDistance);
+
+                // Also update the shader uniforms
+                mShadowTechnique->setShadowFadeStart(mIndoorShadowDistance * shadowFadeStart);
+                mShadowTechnique->setMaximumShadowMapDistance(mIndoorShadowDistance);
+            }
+        }
         else
             mShadowTechnique->disableShadows(true);
     }
@@ -178,6 +205,38 @@ namespace SceneUtil
     {
         if (mEnableShadows)
             mShadowTechnique->enableShadows();
+
         mShadowSettings->setCastsShadowTraversalMask(mOutdoorShadowCastingMask);
+
+        // ADDED: Apply outdoor shadow distance
+        if (mOutdoorShadowDistance > 0)
+        {
+            const float shadowFadeStart = std::min(std::max(0.f, Settings::Manager::getFloat("shadow fade start", "Shadows")), 1.f);
+
+            // CRITICAL: Set in mShadowSettings so it's used during cull traversal
+            mShadowSettings->setMaximumShadowMapDistance(mOutdoorShadowDistance);
+
+            // Also update the shader uniforms
+            mShadowTechnique->setShadowFadeStart(mOutdoorShadowDistance * shadowFadeStart);
+            mShadowTechnique->setMaximumShadowMapDistance(mOutdoorShadowDistance);
+        }
+    }
+
+    void ShadowManager::enableQuasiExMode()
+    {
+        if (mEnableShadows)
+            mShadowTechnique->enableShadows();
+
+        // QuasiEx uses outdoor shadow quality (casting mask) but with custom distance
+        mShadowSettings->setCastsShadowTraversalMask(mOutdoorShadowCastingMask);
+
+        // Apply QuasiEx shadow distance
+        if (mQuasiExShadowDistance > 0)
+        {
+            const float shadowFadeStart = std::min(std::max(0.f, Settings::Manager::getFloat("shadow fade start", "Shadows")), 1.f);
+            mShadowSettings->setMaximumShadowMapDistance(mQuasiExShadowDistance);
+            mShadowTechnique->setShadowFadeStart(mQuasiExShadowDistance * shadowFadeStart);
+            mShadowTechnique->setMaximumShadowMapDistance(mQuasiExShadowDistance);
+        }
     }
 }

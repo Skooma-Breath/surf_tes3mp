@@ -81,6 +81,8 @@ namespace SceneUtil {
 
         virtual void setShadowFadeStart(float shadowFadeStart);
 
+        virtual void setMaximumShadowMapDistance(float distance);
+
         virtual void enableFrontFaceCulling();
 
         virtual void disableFrontFaceCulling();
@@ -265,6 +267,9 @@ namespace SceneUtil {
         bool                                    _useFrontFaceCulling = true;
 
         float                                   _shadowFadeStart = 0.0;
+
+        osg::ref_ptr<osg::Uniform>             _maxDistanceUniform;
+        osg::ref_ptr<osg::Uniform>             _fadeStartUniform;
 
         class DebugHUD final : public osg::Referenced
         {

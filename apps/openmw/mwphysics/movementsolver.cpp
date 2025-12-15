@@ -479,6 +479,18 @@ namespace MWPhysics
         actor.mPosition = newPosition;
         // remove what was added earlier in compensating for doTrace not taking interior transformation into account
         actor.mPosition.z() -= halfExtents.z(); // vanilla-accurate
+
+        //// Calculate speed magnitude
+        //float speed = std::sqrt(velocity.x() * velocity.x() + velocity.y() * velocity.y() + velocity.z() * velocity.z());
+
+        //// Format velocity string
+        //std::stringstream ss;
+        //ss << "Speed: " << std::fixed << std::setprecision(1) << speed;
+        ////<< " (" << velocity.x() << ", " << velocity.y() << ", " << velocity.z() << ")";
+
+        //// Update HUD
+        //// value is off sometimes....
+        //MWBase::Environment::get().getWindowManager()->setVelocityText(ss.str());
     }
 
     void MovementSolver::moveSurf(ActorFrameData& actor, float time, const btCollisionWorld* collisionWorld,
@@ -732,15 +744,22 @@ namespace MWPhysics
         //std::cout << "Position: (" << actor.mPosition.x() << ", " << actor.mPosition.y() << ", " << actor.mPosition.z() << ")" << std::endl;
         //std::cout << "Velocity: (" << velocity.x() << ", " << velocity.y() << ", " << velocity.z() << ")" << std::endl;
 
+        // Get the actual persistent velocity
+        osg::Vec3f displayVelocity = physicActor->getInertialForce();
+
         // Calculate speed magnitude
-        float speed = std::sqrt(velocity.x() * velocity.x() + velocity.y() * velocity.y() + velocity.z() * velocity.z());
+        float speed = std::sqrt(displayVelocity.x() * displayVelocity.x() +
+            displayVelocity.y() * displayVelocity.y() +
+            displayVelocity.z() * displayVelocity.z());
 
         // Format velocity string
         std::stringstream ss;
         ss << "Speed: " << std::fixed << std::setprecision(1) << speed;
         //<< " (" << velocity.x() << ", " << velocity.y() << ", " << velocity.z() << ")";
 
-    // Update HUD
+        // Update HUD
+        // doesn't work right in exterior cells...
+        // randomly only shows 0 in surf_mesa_mw...
         MWBase::Environment::get().getWindowManager()->setVelocityText(ss.str());
     }
 

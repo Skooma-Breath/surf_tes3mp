@@ -629,10 +629,17 @@ namespace MWRender
             mGroundcoverWorld->enable(enable);
     }
 
-    void RenderingManager::setSkyEnabled(bool enabled)
+    void RenderingManager::setSkyEnabled(bool enabled, bool isQuasiEx)
     {
         mSky->setEnabled(enabled);
-        if (enabled)
+
+        // Three shadow modes:
+        // - True exteriors: outdoor mode with outdoor distance
+        // - QuasiEx cells: outdoor mode with QuasiEx distance
+        // - True interiors: indoor mode with indoor distance
+        if (enabled && isQuasiEx)
+            mShadowManager->enableQuasiExMode();
+        else if (enabled)
             mShadowManager->enableOutdoorMode();
         else
             mShadowManager->enableIndoorMode();

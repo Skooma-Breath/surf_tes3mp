@@ -151,10 +151,11 @@ namespace MWWorld
         if (mSky && (isCellExterior() || isCellQuasiExterior()))
         {
             updateSkyDate();
-            mRendering->setSkyEnabled(true);
+            // Pass QuasiEx status so shadows can use the appropriate mode
+            mRendering->setSkyEnabled(true, isCellQuasiExterior());
         }
         else
-            mRendering->setSkyEnabled(false);
+            mRendering->setSkyEnabled(false, false);
     }
 
     World::World (
