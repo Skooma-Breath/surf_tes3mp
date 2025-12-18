@@ -5,6 +5,8 @@
 #include <components/misc/stringops.hpp>
 #include <components/settings/settings.hpp>
 
+#include <iostream> 
+
 namespace SceneUtil
 {
     using namespace osgShadow;
@@ -37,9 +39,15 @@ namespace SceneUtil
         if (mIndoorShadowDistance <= 0.0f)
             mIndoorShadowDistance = mOutdoorShadowDistance;
 
+        // add some debug to see what the default value its reading is... 
+        // or figure out gow to not build the version and gui from the resources folder so i can debug...
+        // OR setup the requiredDatafiles.json for proper testing on local server...
         mQuasiExShadowDistance = Settings::Manager::getFloat("quasiex maximum shadow map distance", "Shadows");
-        if (mQuasiExShadowDistance <= 0.0f)
+        std::cout << "QuasiEx Shadow Distance from settings: " << mQuasiExShadowDistance << std::endl;
+        if (mQuasiExShadowDistance == 0.0f)
             mQuasiExShadowDistance = mOutdoorShadowDistance;
+
+        std::cout << "QuasiEx Shadow Distance from settings: " << mQuasiExShadowDistance << std::endl;
 
         // Apply outdoor distance initially (we start in outdoor mode)
         if (mOutdoorShadowDistance > 0)
@@ -184,12 +192,12 @@ namespace SceneUtil
         {
             mShadowSettings->setCastsShadowTraversalMask(mIndoorShadowCastingMask);
 
-            // ADDED: Apply indoor shadow distance
+            // Apply indoor shadow distance
             if (mIndoorShadowDistance > 0)
             {
                 const float shadowFadeStart = std::min(std::max(0.f, Settings::Manager::getFloat("shadow fade start", "Shadows")), 1.f);
 
-                // CRITICAL: Set in mShadowSettings so it's used during cull traversal
+                // Set in mShadowSettings so it's used during cull traversal
                 mShadowSettings->setMaximumShadowMapDistance(mIndoorShadowDistance);
 
                 // Also update the shader uniforms
@@ -213,7 +221,7 @@ namespace SceneUtil
         {
             const float shadowFadeStart = std::min(std::max(0.f, Settings::Manager::getFloat("shadow fade start", "Shadows")), 1.f);
 
-            // CRITICAL: Set in mShadowSettings so it's used during cull traversal
+            // set in mShadowSettings so it's used during cull traversal
             mShadowSettings->setMaximumShadowMapDistance(mOutdoorShadowDistance);
 
             // Also update the shader uniforms
@@ -231,12 +239,23 @@ namespace SceneUtil
         mShadowSettings->setCastsShadowTraversalMask(mOutdoorShadowCastingMask);
 
         // Apply QuasiEx shadow distance
+        std::cout << "QuasiEx Shadow Distance from enableQuasiExMode: " << mQuasiExShadowDistance << std::endl;
         if (mQuasiExShadowDistance > 0)
         {
+            std::cout << "if (mQuasiExShadowDistance > 0) QuasiEx Shadow Distance from enableQuasiExMode: " << mQuasiExShadowDistance << std::endl;
             const float shadowFadeStart = std::min(std::max(0.f, Settings::Manager::getFloat("shadow fade start", "Shadows")), 1.f);
             mShadowSettings->setMaximumShadowMapDistance(mQuasiExShadowDistance);
             mShadowTechnique->setShadowFadeStart(mQuasiExShadowDistance * shadowFadeStart);
             mShadowTechnique->setMaximumShadowMapDistance(mQuasiExShadowDistance);
+        }
+        else if (mQuasiExShadowDistance < 0)
+        {
+            // Negative value (like -1): infinite distance - set to a very large value
+            const float shadowFadeStart = std::min(std::max(0.f, Settings::Manager::getFloat("shadow fade start", "Shadows")), 1.f);
+            const float infiniteDistance = 1000000.0f;  // Effectively infinite
+            mShadowSettings->setMaximumShadowMapDistance(infiniteDistance);
+            mShadowTechnique->setShadowFadeStart(infiniteDistance * shadowFadeStart);
+            mShadowTechnique->setMaximumShadowMapDistance(infiniteDistance);
         }
     }
 }
