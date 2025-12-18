@@ -5,8 +5,6 @@
 #include <components/misc/stringops.hpp>
 #include <components/settings/settings.hpp>
 
-#include <iostream> 
-
 namespace SceneUtil
 {
     using namespace osgShadow;
@@ -39,15 +37,10 @@ namespace SceneUtil
         if (mIndoorShadowDistance <= 0.0f)
             mIndoorShadowDistance = mOutdoorShadowDistance;
 
-        // add some debug to see what the default value its reading is... 
-        // or figure out gow to not build the version and gui from the resources folder so i can debug...
-        // OR setup the requiredDatafiles.json for proper testing on local server...
         mQuasiExShadowDistance = Settings::Manager::getFloat("quasiex maximum shadow map distance", "Shadows");
-        std::cout << "QuasiEx Shadow Distance from settings: " << mQuasiExShadowDistance << std::endl;
+        
         if (mQuasiExShadowDistance == 0.0f)
             mQuasiExShadowDistance = mOutdoorShadowDistance;
-
-        std::cout << "QuasiEx Shadow Distance from settings: " << mQuasiExShadowDistance << std::endl;
 
         // Apply outdoor distance initially (we start in outdoor mode)
         if (mOutdoorShadowDistance > 0)
@@ -239,10 +232,8 @@ namespace SceneUtil
         mShadowSettings->setCastsShadowTraversalMask(mOutdoorShadowCastingMask);
 
         // Apply QuasiEx shadow distance
-        std::cout << "QuasiEx Shadow Distance from enableQuasiExMode: " << mQuasiExShadowDistance << std::endl;
         if (mQuasiExShadowDistance > 0)
         {
-            std::cout << "if (mQuasiExShadowDistance > 0) QuasiEx Shadow Distance from enableQuasiExMode: " << mQuasiExShadowDistance << std::endl;
             const float shadowFadeStart = std::min(std::max(0.f, Settings::Manager::getFloat("shadow fade start", "Shadows")), 1.f);
             mShadowSettings->setMaximumShadowMapDistance(mQuasiExShadowDistance);
             mShadowTechnique->setShadowFadeStart(mQuasiExShadowDistance * shadowFadeStart);
