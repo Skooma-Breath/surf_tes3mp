@@ -99,6 +99,7 @@ namespace MWPhysics
         osg::Vec3f mMovement;
         osg::Vec3f mPosition;
         ESM::Position mRefpos;
+        bool mIsPlayer;
     };
 
     struct WorldFrameData

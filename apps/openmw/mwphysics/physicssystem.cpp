@@ -784,6 +784,9 @@ namespace MWPhysics
         std::vector<ActorFrameData> actorsFrameData;
         actorsFrameData.reserve(mActors.size());
         const MWBase::World *world = MWBase::Environment::get().getWorld();
+
+        const MWWorld::Ptr playerPtr = MWMechanics::getPlayer();
+
         for (const auto& [ptr, physicActor] : mActors)
         {
             float waterlevel = -std::numeric_limits<float>::max();
@@ -811,6 +814,8 @@ namespace MWPhysics
                 standingOn = physicActor->getStandingOnPtr();
 
             actorsFrameData.emplace_back(physicActor, standingOn, waterCollision, slowFall, waterlevel);
+
+            actorsFrameData.back().mIsPlayer = (ptr == playerPtr);
         }
         return actorsFrameData;
     }
