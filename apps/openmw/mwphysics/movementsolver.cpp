@@ -13,7 +13,6 @@
 #include "../mwworld/class.hpp"
 #include "../mwworld/esmstore.hpp"
 #include "../mwworld/refdata.hpp"
-#include "../mwmechanics/actorutil.hpp"
 
 #include "actor.hpp"
 #include "collisiontype.hpp"
@@ -481,18 +480,6 @@ namespace MWPhysics
         // remove what was added earlier in compensating for doTrace not taking interior transformation into account
         actor.mPosition.z() -= halfExtents.z(); // vanilla-accurate
 
-        //// Calculate speed magnitude
-        //float speed = std::sqrt(velocity.x() * velocity.x() + velocity.y() * velocity.y() + velocity.z() * velocity.z());
-
-        //// Format velocity string
-        //std::stringstream ss;
-        //ss << "Speed: " << std::fixed << std::setprecision(1) << speed;
-        ////<< " (" << velocity.x() << ", " << velocity.y() << ", " << velocity.z() << ")";
-
-        //// Update HUD
-        //// value is off sometimes....
-        //MWBase::Environment::get().getWindowManager()->setVelocityText(ss.str());
-
         if (actor.mIsPlayer)
         {
             // Get the actual persistent velocity
@@ -758,11 +745,6 @@ namespace MWPhysics
 
         actor.mPosition = newPosition;
         actor.mPosition.z() -= halfExtents.z();  // Undo offset
-
-
-        //log position and speed
-        //std::cout << "Position: (" << actor.mPosition.x() << ", " << actor.mPosition.y() << ", " << actor.mPosition.z() << ")" << std::endl;
-        //std::cout << "Velocity: (" << velocity.x() << ", " << velocity.y() << ", " << velocity.z() << ")" << std::endl;
 
         if (actor.mIsPlayer)
         {
