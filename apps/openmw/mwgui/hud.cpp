@@ -6,6 +6,7 @@
 #include <MyGUI_InputManager.h>
 #include <MyGUI_ImageBox.h>
 #include <MyGUI_ScrollView.h>
+#include <MyGUI_Window.h>
 
 /*
     Start of tes3mp addition
@@ -120,8 +121,8 @@ namespace MWGui
         , mMinimap(nullptr)
         , mCrosshair(nullptr)
         , mCellNameBox(nullptr)
-        , mVelocityBox(nullptr)
-        , mVelocityVisible(true)
+       /* , mVelocityBox(nullptr)
+        , mVelocityVisible(true)*/
         , mDrowningFrame(nullptr)
         , mDrowningFlash(nullptr)
         , mHealthManaStaminaBaseLeft(0)
@@ -193,7 +194,17 @@ namespace MWGui
         getWidget(mMinimapButton, "MiniMapButton");
         mMinimapButton->eventMouseButtonClick += MyGUI::newDelegate(this, &HUD::onMapClicked);
 
-        getWidget(mVelocityBox, "VelocityDisplay");
+        //surf addition
+        //getWidget(mVelocityWindow, "VelocityWindow");
+        //getWidget(mVelocityBox, "VelocityDisplay");
+        // Initialize pin state
+        //mVelocityWindowPinned = false;
+
+       /* MyGUI::Button* pinButton = getVelocityPinButton();
+        if (pinButton)
+        {
+            pinButton->eventMouseButtonClick += MyGUI::newDelegate(this, &HUD::onVelocityWindowPinToggled);
+        }*/
 
         getWidget(mCellNameBox, "CellName");
         getWidget(mWeaponSpellBox, "WeaponSpellName");
@@ -218,21 +229,33 @@ namespace MWGui
         delete mSpellIcons;
     }
 
-    void HUD::setVelocityText(const std::string& velocityText) // surf addition
-    {
-        if (mVelocityBox)
-        {
-            mVelocityBox->setCaption(velocityText);
-            mVelocityBox->setVisible(mVelocityVisible);
-        }
-    }
+    //surf addition
+    //void HUD::setVelocityText(const std::string& velocityText) // surf addition
+    //{
+    //    if (mVelocityBox)
+    //    {
+    //        mVelocityBox->setCaption(velocityText);
+    //        mVelocityBox->setVisible(mVelocityVisible);
+    //    }
+    //}
 
-    void HUD::toggleVelocityDisplay() // surf addition
-    {
-        mVelocityVisible = !mVelocityVisible;
-        if (mVelocityBox)
-            mVelocityBox->setVisible(mVelocityVisible);
-    }
+    //void HUD::toggleVelocityDisplay() // surf addition
+    //{
+    //    mVelocityVisible = !mVelocityVisible;
+    //    if (mVelocityBox)
+    //        mVelocityBox->setVisible(mVelocityVisible);
+    //}
+
+    // Add this method to hud.cpp:
+    //void HUD::onResChange(int width, int height)
+    //{
+    //    // Let the window manager handle tracked window resizing
+    //    // This is called automatically for tracked windows
+    //    LocalMapBase::onResChange(width, height);
+
+    //    // Update positions of other HUD elements if needed
+    //    // (existing code for health bars, minimap, etc.)
+    //}
 
     void HUD::setValue(const std::string& id, const MWMechanics::DynamicStat<float>& value)
     {
@@ -462,7 +485,65 @@ namespace MWGui
 
             mDrowningFlash->setAlpha(intensity);
         }
+
+        // Control velocity window moveability based on GUI mode
+       /* if (mVelocityWindow)
+        {
+            bool inventoryOpen = MWBase::Environment::get().getWindowManager()->getMode() == GM_Inventory;
+            mVelocityWindow->setMovable(inventoryOpen);
+        }*/
     }
+
+    // Add this to hud.cpp:
+   /* MyGUI::Button* HUD::getVelocityPinButton()
+    {
+        if (!mVelocityWindow)
+            return nullptr;
+
+        MyGUI::EnumeratorWidgetPtr children = mVelocityWindow->getEnumerator();
+        while (children.next())
+        {
+            MyGUI::Widget* child = children.current();
+            if (child->getName() == "Button")
+            {
+                return child->castType<MyGUI::Button>(false);
+            }
+        }
+        return nullptr;
+    }*/
+
+    /*void HUD::onVelocityWindowPinToggled(MyGUI::Widget* _sender)
+    {
+        mVelocityWindowPinned = !mVelocityWindowPinned;
+
+        MyGUI::Button* pinButton = getVelocityPinButton();
+        if (pinButton)
+        {
+            if (mVelocityWindowPinned)
+                pinButton->changeWidgetSkin("PinDown");
+            else
+                pinButton->changeWidgetSkin("PinUp");
+        }
+
+        Settings::Manager::setBool("velocity pin", "Windows", mVelocityWindowPinned);
+    }
+
+    void HUD::setVelocityWindowPinned(bool pinned)
+    {
+        if (mVelocityWindowPinned == pinned)
+            return;
+
+        mVelocityWindowPinned = pinned;
+
+        MyGUI::Button* pinButton = getVelocityPinButton();
+        if (pinButton)
+        {
+            if (mVelocityWindowPinned)
+                pinButton->changeWidgetSkin("PinDown");
+            else
+                pinButton->changeWidgetSkin("PinUp");
+        }
+    }*/
 
     void HUD::setSelectedSpell(const std::string& spellId, int successChancePercent)
     {

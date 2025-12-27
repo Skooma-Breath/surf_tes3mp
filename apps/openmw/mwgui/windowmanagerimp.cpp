@@ -131,6 +131,8 @@
 #include "keyboardnavigation.hpp"
 #include "resourceskin.hpp"
 
+#include "velocitywindow.hpp"
+
 namespace MWGui
 {
     WindowManager::WindowManager(
@@ -381,6 +383,14 @@ namespace MWGui
 
         mHud = new HUD(mCustomMarkers, mDragAndDrop, mLocalMapRender);
         mWindows.push_back(mHud);
+
+        mVelocityWindow = new VelocityWindow(mDragAndDrop);
+        mWindows.push_back(mVelocityWindow);
+        trackWindow(mVelocityWindow, "velocity");
+
+        mVelocityWindow->toggleWindowFrame(); 
+        mVelocityWindow->updateTextSize();
+        
 
         mToolTips = new ToolTips();
 
@@ -645,6 +655,9 @@ namespace MWGui
             mStatsWindow->setVisible(mStatsWindow->pinned() && !isConsoleMode() && !(mForceHidden & GW_Stats) && (mAllowed & GW_Stats));
             mInventoryWindow->setVisible(mInventoryWindow->pinned() && !isConsoleMode() && !(mForceHidden & GW_Inventory) && (mAllowed & GW_Inventory));
             mSpellWindow->setVisible(mSpellWindow->pinned() && !isConsoleMode() && !(mForceHidden & GW_Magic) && (mAllowed & GW_Magic));
+
+            mVelocityWindow->setVisible(mVelocityWindow->pinned() && !isConsoleMode());
+
             return;
         }
         else if (getMode() != GM_Inventory)
@@ -652,7 +665,7 @@ namespace MWGui
             mMap->setVisible(false);
             mStatsWindow->setVisible(false);
             mSpellWindow->setVisible(false);
-            mInventoryWindow->setVisible(getMode() == GM_Container || getMode() == GM_Barter || getMode() == GM_Companion);
+            mInventoryWindow->setVisible(getMode() == GM_Container || getMode() == GM_Barter || getMode() == GM_Companion); 
         }
 
         GuiMode mode = mGuiModes.back();
@@ -670,6 +683,8 @@ namespace MWGui
             mInventoryWindow->setVisible(eff & GW_Inventory);
             mSpellWindow->setVisible(eff & GW_Magic);
             mStatsWindow->setVisible(eff & GW_Stats);
+
+            mVelocityWindow->setVisible(true);
         }
 
         switch (mode)
@@ -2037,6 +2052,8 @@ namespace MWGui
         mStatsWindow->setPinned(Settings::Manager::getBool("stats pin", "Windows"));
         if (Settings::Manager::getBool("stats hidden", "Windows"))
             mShown = (GuiWindow)(mShown ^ GW_Stats);
+
+        mVelocityWindow->setPinned(Settings::Manager::getBool("velocity pin", "Windows"));
     }
 
     void WindowManager::pinWindow(GuiWindow window)
@@ -2386,15 +2403,15 @@ namespace MWGui
         return mStatsWatcher->getWatchedActor();
     }
 
-    void WindowManager::setVelocityText(const std::string& text) // surf addition
+    void WindowManager::setVelocityText(const std::string& text)
     {
-        if (mHud)
-            mHud->setVelocityText(text);
+        if (mVelocityWindow)
+            mVelocityWindow->setVelocityText(text);
     }
 
-    void WindowManager::toggleVelocityDisplay() // surf addition
+    void WindowManager::toggleVelocityDisplay()
     {
-        if (mHud)
-            mHud->toggleVelocityDisplay();
+        if (mVelocityWindow)
+            mVelocityWindow->toggleWindowFrame();
     }
 }

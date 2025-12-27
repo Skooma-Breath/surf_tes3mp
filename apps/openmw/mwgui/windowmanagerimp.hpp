@@ -23,6 +23,7 @@
 
 #include <MyGUI_KeyCode.h>
 #include <MyGUI_Types.h>
+#include "velocitywindow.hpp"
 
 namespace MyGUI
 {
@@ -31,6 +32,7 @@ namespace MyGUI
     class Window;
     class UString;
     class ImageBox;
+    class VelocityWindow;
 }
 
 namespace MWWorld
@@ -478,8 +480,8 @@ namespace MWGui
     bool injectKeyPress(MyGUI::KeyCode key, unsigned int text, bool repeat=false) override;
     bool injectKeyRelease(MyGUI::KeyCode key) override;
 
-    void setVelocityText(const std::string& text) override; // surf addition
-    void toggleVelocityDisplay() override;
+    void setVelocityText(const std::string& text); // surf addition
+    void toggleVelocityDisplay();
 
   private:
     unsigned int mOldUpdateMask; unsigned int mOldCullMask;
@@ -508,6 +510,8 @@ namespace MWGui
 
     // Markers placed manually by the player. Must be shared between both map views (the HUD map and the map window).
     CustomMarkerCollection mCustomMarkers;
+
+    VelocityWindow* mVelocityWindow;
 
     HUD *mHud;
     MapWindow *mMap;

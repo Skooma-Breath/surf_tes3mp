@@ -51,8 +51,6 @@ namespace MWGui
 
         void setCellName(const std::string& cellName);
 
-        void setVelocityText(const std::string& velocityText);
-
         bool getWorldMouseOver() { return mWorldMouseOver; }
 
         MyGUI::Widget* getEffectBox() { return mEffectBox; }
@@ -62,7 +60,15 @@ namespace MWGui
 
         void clear() override;
 
-        void toggleVelocityDisplay(); // surf addition
+        //surf addition
+       /* void setVelocityText(const std::string& velocityText); 
+        void toggleVelocityDisplay(); */
+       /* MyGUI::Window* getVelocityWindow() { return mVelocityWindow; }
+        void setVelocityWindowPinned(bool pinned);
+        bool isVelocityWindowPinned() const { return mVelocityWindowPinned; }
+        void onVelocityWindowPinToggled(MyGUI::Widget* _sender);*/
+
+        //void onResChange(int width, int height) override;
 
     private:
         MyGUI::ProgressBar *mHealth, *mMagicka, *mStamina, *mEnemyHealth, *mDrowning;
@@ -79,8 +85,12 @@ namespace MWGui
         MyGUI::TextBox* mWeaponSpellBox;
         MyGUI::Widget *mDrowningFrame, *mDrowningFlash;
 
-        MyGUI::TextBox* mVelocityBox;
-        bool mVelocityVisible;
+        //surf addition
+       /* MyGUI::TextBox* mVelocityBox;
+        bool mVelocityVisible;*/
+       /* MyGUI::Window* mVelocityWindow;
+        bool mVelocityWindowPinned;
+        MyGUI::Button* getVelocityPinButton();*/
 
         // bottom left elements
         int mHealthManaStaminaBaseLeft, mWeapBoxBaseLeft, mSpellBoxBaseLeft, mSneakBoxBaseLeft;
