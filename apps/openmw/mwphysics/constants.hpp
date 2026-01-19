@@ -17,7 +17,7 @@ namespace MWPhysics
     // Arbitrary number. To prevent infinite loops. They shouldn't happen but it's good to be prepared.
     static constexpr int sMaxIterations = 8;
     // Allows for more precise movement solving without getting stuck or snagging too easily.
-    static constexpr float sCollisionMargin = 0.1f;
+    static constexpr float sCollisionMargin = 0.1f; // experiment with this and see how surfing feels
     // Allow for a small amount of penetration to prevent numerical precision issues from causing the "unstuck"ing code to run unnecessarily
     // Currently set to 0 because having the "unstuck"ing code run whenever possible prevents some glitchy snagging issues
     static constexpr float sAllowedPenetration = 0.0f;
@@ -30,10 +30,15 @@ namespace MWPhysics
     inline float GROUND_ACCEL = 10.0f;
     inline float JUMP_SPEED = 268.0f;
     inline float GRAVITY_MULT = 1.0f;        // Multiplier for gravity (1.0 = normal, 0.5 = half gravity, 2.0 = double)
-    inline float OVERBOUNCE = 1.1f;          // Bounce multiplier for collision response
+    inline float OVERBOUNCE = 1.6f;          // Bounce multiplier for collision response
     inline float RAMP_ANGLE = 0.8f;          // Check if a slope is walkable (Source Engine uses normal.z >= 0.7) (0.8 = ~36 degrees)
 
     inline bool SURF_PHYSICS_ENABLED = false; // surf physics boolean toggle
+
+    inline float OVERBOUNCE_IMPACT = 1.1f;
+    //inline float OVERBOUNCE_SURF = 1.6f;
+    //inline float OVERBOUNCE_WALL = 1.1f;
+    inline float IMPACT_VELOCITY_THRESHOLD = 200.0f;
 
 }
 

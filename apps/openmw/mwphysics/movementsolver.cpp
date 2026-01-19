@@ -126,7 +126,8 @@ namespace MWPhysics
     }
 
     // Clip velocity against a surface normal for sliding (Source-like collision)
-    osg::Vec3f ClipVelocity(const osg::Vec3f& in, const osg::Vec3f& normal, float overbounce)
+    // smashing into a less steep ramp does not cause any bounce at 2.0 overobunce.... rotate the first ramp of mesa by (setangle y 5)
+    osg::Vec3f ClipVelocity(const osg::Vec3f& in, const osg::Vec3f& normal, float overbounce) 
     {
         float backoff = in * normal;
 
@@ -486,9 +487,9 @@ namespace MWPhysics
             osg::Vec3f displayVelocity = physicActor->getInertialForce();
 
             // Calculate speed magnitude
-            float speed = std::sqrt(displayVelocity.x() * displayVelocity.x() +
-                displayVelocity.y() * displayVelocity.y() +
-                displayVelocity.z() * displayVelocity.z());
+            float speed = std::sqrt(velocity.x() * velocity.x() +
+                velocity.y() * velocity.y() +
+                velocity.z() * velocity.z());
 
             // Format velocity string
             std::stringstream ss;
@@ -676,14 +677,24 @@ namespace MWPhysics
             else
             {
                 remainingTime *= (1.0f - tracer.mFraction);
-                velocity = ClipVelocity(velocity, tracer.mPlaneNormal, OVERBOUNCE);
 
-                if ((newPosition - tracer.mEndPos).length2() > sCollisionMargin * sCollisionMargin)
-                {
-                    auto direction = velocity;
-                    direction.normalize();
-                    newPosition = tracer.mEndPos - direction * sCollisionMargin;
-                }
+                float effectiveOverbounce = OVERBOUNCE;
+
+               
+                float velocityIntoSurface = -(velocity * tracer.mPlaneNormal);
+                float impactFactor = std::max(0.0f, std::min(1.0f, velocityIntoSurface / IMPACT_VELOCITY_THRESHOLD));
+                effectiveOverbounce = OVERBOUNCE * (1.0f - impactFactor) + OVERBOUNCE_IMPACT * impactFactor;
+
+                /*if (actor.mIsPlayer)
+                    std::cout << "RAMP: velInto=" << velocityIntoSurface
+                    << " impact=" << impactFactor
+                    << " ob=" << effectiveOverbounce << std::endl;*/
+
+                velocity = ClipVelocity(velocity, tracer.mPlaneNormal, effectiveOverbounce);
+
+                auto direction = velocity;
+                direction.normalize();
+                newPosition = tracer.mEndPos - direction * sCollisionMargin;
             }
         }
 
