@@ -235,6 +235,8 @@ else
 	cd "$APPVEYOR_BUILD_FOLDER"
 fi
 
+SOURCE_ROOT="$(pwd)"
+
 run_cmd() {
 	CMD="$1"
 	shift
@@ -891,7 +893,7 @@ printf "Qt ${QT_VER}... "
 
 	QT_SDK="$(real_pwd)/Qt/${QT_VER}/msvc${QT_MSVC_YEAR}${SUFFIX}"
 
-	if [ -d "Qt/${QT_VER}" ]; then
+		if [ -d "Qt/${QT_VER}" ]; then
 		printf "Exists. "
 	elif [ -z $SKIP_EXTRACT ]; then
 		if [ $MISSINGPYTHON -ne 0 ]; then
@@ -913,11 +915,15 @@ printf "Qt ${QT_VER}... "
 			wrappedExit 1
 		fi
 
-		# check version
+				# Fix missing setuptools and pkg_resources
+		echo "  Ensuring setuptools is installed in virtualenv..."
+		run_cmd "aqt-venv/${VENV_BIN_DIR}/python" -m pip install --upgrade pip setuptools wheel
+
+		# Check version
 		aqt-venv/${VENV_BIN_DIR}/pip list | grep 'aqtinstall\s*1.1.3' || [ $? -ne 0 ]
 		if [ $? -eq 0 ]; then
 			echo "  Installing aqt wheel into virtualenv..."
-			run_cmd "aqt-venv/${VENV_BIN_DIR}/pip" install aqtinstall==1.1.3
+			run_cmd "aqt-venv/${VENV_BIN_DIR}/pip" install aqtinstall==3.1.9
 		fi
 		popd > /dev/null
 
@@ -933,6 +939,7 @@ printf "Qt ${QT_VER}... "
 
 		echo Done.
 	fi
+
 
 	cd $QT_SDK
 	add_cmake_opts -DQT_QMAKE_EXECUTABLE="${QT_SDK}/bin/qmake.exe" \
@@ -1195,6 +1202,17 @@ if [ -n "$ACTIVATE_MSVC" ]; then
 	echo "done."
 	echo
 fi
+
+echo "- Initializing submodules..."
+git -C "$SOURCE_ROOT" submodule update --init --recursive
+
+# RakNet (CrabNet) may not be registered as a submodule in older clones; clone directly if missing
+if [ ! -f "$SOURCE_ROOT/extern/raknet/CMakeLists.txt" ]; then
+    echo "- RakNet submodule missing, cloning directly..."
+    rm -rf "$SOURCE_ROOT/extern/raknet"
+    git clone https://github.com/TES3MP/CrabNet.git "$SOURCE_ROOT/extern/raknet"
+fi
+echo
 
 if [ -z $VERBOSE ]; then
 	printf -- "- Configuring... "
